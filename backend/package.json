@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": " node src/index.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.7.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "linkedin_clone": "file:..",
+    "mongoose": "^8.17.0",
+    "nodemon": "^3.1.10"
+  }
+}
