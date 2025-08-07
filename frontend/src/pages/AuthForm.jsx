@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { User, Mail, Lock } from "lucide-react";
+import React, { useState } from "react";
+import { User, Mail, Lock, Key } from "lucide-react";
 import { authStore } from "../store/authStore";
 
 const AuthForm = () => {
-    const {login,signup,isSigningUp,isLoggingIn} = authStore();
+    const { login, signup, isSigningUp, isLoggingIn, sendOtp } = authStore();
     const [mode, setMode] = useState("login");
     const [focusedInput, setFocusedInput] = useState("");
+    const [otpSent, setOtpSent] = useState(false);
+    const [enteredOtp, setEnteredOtp] = useState("");
+
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
     });
 
     const [errors, setErrors] = useState({});
@@ -33,16 +36,31 @@ const AuthForm = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-        console.log("Form Data:", formData);
 
-        if(mode ==="login"){
-            login(formData)
-        }else{
-            signup(formData)
+        if (mode === "login") {
+            login(formData);
+        } else {
+            // Step 1: Send OTP on "Register"
+            handleSendOtp(formData.email);
+            setOtpSent(true);
         }
+    };
+
+    const handleSendOtp = async (email) => {
+        console.log(email)
+        sendOtp({ email: email });
+
+    };
+
+    const handleOtp = async () => {
+        const fullFormData = {
+            ...formData,
+            otp: enteredOtp,
+        };
+        signup(fullFormData);
     };
 
     const isAllFilled = () => {
@@ -68,7 +86,10 @@ const AuthForm = () => {
                             }`}
                     />
                     <button
-                        onClick={() => setMode("login")}
+                        onClick={() => {
+                            setMode("login");
+                            setOtpSent(false);
+                        }}
                         className={`w-1/2 z-10 py-2 text-sm font-medium rounded-full transition-colors duration-300 ${mode === "login" ? "text-black" : "text-gray-500"
                             }`}
                     >
@@ -102,8 +123,8 @@ const AuthForm = () => {
                                 <User
                                     size={18}
                                     className={`transition-colors duration-300 ${focusedInput === "fullName" || formData.fullName
-                                            ? "text-yellow-400"
-                                            : "text-gray-400"
+                                        ? "text-yellow-400"
+                                        : "text-gray-400"
                                         }`}
                                 />
                                 <input
@@ -128,8 +149,8 @@ const AuthForm = () => {
                             <Mail
                                 size={18}
                                 className={`transition-colors duration-300 ${focusedInput === "email" || formData.email
-                                        ? "text-yellow-400"
-                                        : "text-gray-400"
+                                    ? "text-yellow-400"
+                                    : "text-gray-400"
                                     }`}
                             />
                             <input
@@ -153,8 +174,8 @@ const AuthForm = () => {
                             <Lock
                                 size={18}
                                 className={`transition-colors duration-300 ${focusedInput === "password" || formData.password
-                                        ? "text-yellow-400"
-                                        : "text-gray-400"
+                                    ? "text-yellow-400"
+                                    : "text-gray-400"
                                     }`}
                             />
                             <input
@@ -178,9 +199,10 @@ const AuthForm = () => {
                             <label className="flex items-center gap-2 border-b py-2">
                                 <Lock
                                     size={18}
-                                    className={`transition-colors duration-300 ${focusedInput === "confirmPassword" || formData.confirmPassword
-                                            ? "text-yellow-400"
-                                            : "text-gray-400"
+                                    className={`transition-colors duration-300 ${focusedInput === "confirmPassword" ||
+                                        formData.confirmPassword
+                                        ? "text-yellow-400"
+                                        : "text-gray-400"
                                         }`}
                                 />
                                 <input
@@ -202,12 +224,34 @@ const AuthForm = () => {
                         </div>
                     )}
 
-                    <button
-                        type="submit"
-                        className="bg-yellow-400 text-white py-2 rounded-full w-full font-semibold mt-4 hover:bg-yellow-500 transition"
-                    >
-                        {mode === "login" ? "Sign in" : "Register"}
-                    </button>
+                    {!otpSent ? (
+                        <button
+                            type="submit"
+                            className="bg-yellow-400 text-white py-2 rounded-full w-full font-semibold mt-4 hover:bg-yellow-500 transition"
+                        >
+                            {mode === "login" ? "Sign In" : "Send OTP"}
+                        </button>
+                    ) : (
+                        <>
+                            <label className="flex items-center gap-2 border-b py-2">
+                                <Key size={18} className="text-yellow-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Enter OTP"
+                                    value={enteredOtp}
+                                    onChange={(e) => setEnteredOtp(e.target.value)}
+                                    className="flex-1 outline-none text-sm bg-transparent"
+                                />
+                            </label>
+                            <button
+                                type="button"
+                                onClick={handleOtp}
+                                className="bg-green-500 text-white py-2 rounded-full w-full font-semibold mt-2 hover:bg-green-600 transition"
+                            >
+                                Verify OTP & Register
+                            </button>
+                        </>
+                    )}
 
                     <div className="text-center mt-2 text-sm text-gray-600">
                         {mode === "login" ? (
@@ -224,7 +268,10 @@ const AuthForm = () => {
                             <>
                                 Already have an account?{" "}
                                 <span
-                                    onClick={() => setMode("login")}
+                                    onClick={() => {
+                                        setMode("login");
+                                        setOtpSent(false);
+                                    }}
                                     className="text-black font-medium cursor-pointer"
                                 >
                                     Sign in

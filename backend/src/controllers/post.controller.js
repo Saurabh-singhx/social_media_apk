@@ -188,7 +188,7 @@ export const getMyPost = async (req, res) => {
             return res.status(401).json({ message: "error not found while getting my posts" });
         }
 
-        const posts = await Post.find({ postUserId: userId }).sort({ createdAt: -1 }).skip(numberToSkip).limit(10).exec();
+        const posts = await Post.find({ postUserId: userId }).sort({ createdAt: -1 }).exec();
 
         return res.status(200).json({
             posts

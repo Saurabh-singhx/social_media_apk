@@ -1,6 +1,7 @@
 
 import cloudinary from "../lib/cloudinary.js";
 import { generateToken } from "../lib/utils.js";
+import Otp from "../models/otp.model.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt"
 
@@ -8,11 +9,11 @@ import bcrypt from "bcrypt"
 
 export const signup = async (req, res) => {
 
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password, otp } = req.body;
 
     try {
 
-        if (!fullName || !email || !password) {
+        if (!fullName || !email || !password || !otp) {
             return res.status(500).json({ message: "All fields should be filled" });
         }
 
@@ -22,35 +23,47 @@ export const signup = async (req, res) => {
 
         const user = await User.findOne({ email });
 
-        if (user) {
-            return res.status(400).json({ message: "user already exists" })
+        const dbotp = await Otp.findOne({ email })
+
+        if (!dbotp) {
+            return res.status(400).json({ message: "check your email and try again" });
         }
 
-        const salt = await bcrypt.genSalt(10);
+        if (otp === dbotp.otp) {
+            if (user) {
+                return res.status(400).json({ message: "user already exists" })
+            }
 
-        const hashedPassword = await bcrypt.hash(password, salt);
+            const salt = await bcrypt.genSalt(10);
 
-        const newUser = new User({
-            fullName: fullName,
-            email: email,
-            password: hashedPassword,
+            const hashedPassword = await bcrypt.hash(password, salt);
 
-        })
+            const newUser = new User({
+                fullName: fullName,
+                email: email,
+                password: hashedPassword,
 
-        if (newUser) {
-            generateToken(newUser._id, res);
-            await newUser.save();
+            })
 
-            res.status(201).json({
-                _id: newUser._id,
-                fullname: newUser.fullName,
-                email: newUser.email,
-                profilepic: newUser.profilepic,
-                Bio: newUser.bio,
-            });
-        } else {
-            return res.status(400).json({ message: "Invalid user data" })
+            if (newUser) {
+                generateToken(newUser._id, res);
+                await newUser.save();
+
+                res.status(201).json({
+                    _id: newUser._id,
+                    fullName: newUser.fullName,
+                    email: newUser.email,
+                    profilepic: newUser.profilepic,
+                    bio: newUser.bio,
+                });
+            } else {
+                return res.status(400).json({ message: "Invalid user data" })
+            }
+        }else{
+            return res.status(400).json({ message: "otp did not matched" })
         }
+
+
     } catch (error) {
         console.log("error in signup controller", error.message);
         return res.status(500).json({ message: "Internal server error" })

@@ -19,7 +19,7 @@ function HomePage({ showMyPosts }) {
     } else {
       getMyPost({ numberToSkip: numberToSkip });
     }
-  }, [numberToSkip,showMyPosts])
+  }, [numberToSkip, showMyPosts])
 
 
   const handlePostSubmit = async (e) => {
@@ -158,7 +158,7 @@ function HomePage({ showMyPosts }) {
       )}
 
       {
-        !isLoadingPosts && (<div
+        !isLoadingPosts && !showMyPosts&& (<div
           className="flex items-start justify-center h-10 mb-2">
           {/* <Loader className="w-10 h-10 animate-spin text-yellow-500" /> */}
           <button
@@ -166,6 +166,7 @@ function HomePage({ showMyPosts }) {
             className='bg-yellow-600 px-6 py-2 rounded-md text-white'>Load More..</button>
         </div>)
       }
+
     </div>
   )
 }

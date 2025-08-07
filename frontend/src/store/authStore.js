@@ -14,7 +14,7 @@ export const authStore = create((set, get) => ({
     isUpdatingProfile: false,
     isLoadingPosts: false,
     AllPosts: [],
-    myPosts:[],
+    myPosts: [],
     AllComments: [],
 
 
@@ -61,6 +61,8 @@ export const authStore = create((set, get) => ({
         try {
             await axiosInstance.post("/auth/logout");
             set({ authUser: null });
+            set({ AllPosts: [] })
+            set({ myPosts: [] })
             toast.success("Logged out successfully");
         } catch (error) {
             toast.error(error.response.data.message);
@@ -86,6 +88,7 @@ export const authStore = create((set, get) => ({
             set({ AllPosts: [...AllPosts, ...uniqueNewPosts] });
 
         } catch (error) {
+            set({ isLoadingPosts: false });
             console.error("Error fetching posts:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch posts");
         } finally {
@@ -162,6 +165,7 @@ export const authStore = create((set, get) => ({
             set({ myPosts: [...myPosts, ...uniqueNewPosts] });
 
         } catch (error) {
+            set({ isLoadingPosts: false });
             console.error("Error fetching myposts:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch posts");
         } finally {
@@ -169,7 +173,16 @@ export const authStore = create((set, get) => ({
         }
     },
 
-    
+    sendOtp: async (em) => {
 
+        try {
+            await axiosInstance.post("/auth/otp", em);
+            // toast.success("otp sent successfully")
+
+        } catch (error) {
+            console.error("Error fetching myposts:", error);
+            toast.error(error?.response?.data?.message || "Failed to fetch posts");
+        }
+    }
 
 }))
