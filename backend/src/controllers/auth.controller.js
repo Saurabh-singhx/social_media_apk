@@ -157,13 +157,22 @@ export const updateProfile = async (req, res) => {
 
 export const googleSignUp = async (req, res) => {
   try {
-    const user = req.user; // Passport will set this
-    generateToken(user._id,res); // your JWT generator
+    const user = req.user; // Passport sets this
+    generateToken(user._id, res); // your JWT generator
 
-    // Redirect to your frontend with token
-    res.redirect(`http://localhost:5173`);
+    const redirectUrl =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:5173"
+        : "https://socialmediaapk.onrender.com";
+
+    res.redirect(redirectUrl);
   } catch (error) {
     console.log("Error in Google signup", error);
-    res.redirect("http://localhost:5173/login?error=oauth_failed");
+    const errorRedirect =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:5173/login?error=oauth_failed"
+        : "https://socialmediaapk.onrender.com/login?error=oauth_failed";
+    res.redirect(errorRedirect);
   }
 };
+
