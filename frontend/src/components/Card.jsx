@@ -6,6 +6,7 @@ import {
   Share2,
   User,
   UserCircle,
+  SendHorizontal
 } from "lucide-react";
 import { useEffect } from "react";
 import { axiosInstance } from "../lib/axios";
@@ -25,10 +26,23 @@ const Card = ({ post }) => {
 
   const isContentTruncated = post.postContent.length > 150 && !expanded;
 
-  const handleLike = () => {
-    setIsLiked(prev => !prev);
-    setLikes(prev => isLiked ? prev - 1 : prev + 1);
+  const checkLiked = async () => {
+    try {
+      const res = await axiosInstance.get(`/post/checkliked/${post._id}`);
+      const Liked = res?.data?.liked
 
+      setIsLiked(Liked);
+    } catch (error) {
+      // console.error("Error fetching Comments:", error);
+      toast.error(error?.response?.data?.message || "Failed to fetch liked");
+    }
+  };
+
+  const handleLike = () => {
+    setIsLiked(true);
+    if(!isLiked){
+      setLikes(prev => prev + 1);
+    }
     createLike(post._id);
   };
   // console.log(post._id)
@@ -87,6 +101,7 @@ const Card = ({ post }) => {
   useEffect(() => {
     getComments();
     getLikes();
+    checkLiked();
   }, []);
 
   // console.log(comments)
@@ -192,9 +207,10 @@ const Card = ({ post }) => {
           />
           <button
             type="submit"
-            className="px-4 py-2 text-sm bg-yellow-400 text-white rounded-full hover:bg-yellow-500 transition"
+            className="text-sm text-white rounded-full"
           >
-            Send
+           <SendHorizontal className="w-6 h-8 text-yellow-400"/>
+            
           </button>
         </div>
       </form>

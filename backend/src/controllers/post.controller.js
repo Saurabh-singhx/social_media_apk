@@ -20,7 +20,7 @@ export const createPost = async (req, res) => {
         if (!userId) {
             return res.status(400).json({ message: "unable to find user while posting" });
         }
-        
+
         let updatedImg = "";
         if (postImg) {
             const uploadResponse = await cloudinary.uploader.upload(postImg);
@@ -72,13 +72,18 @@ export const createLike = async (req, res) => {
             return res.status(401).json({ message: "Post id is needed" });
         }
 
+
         const checkPost = await Post.findById(postId);
 
         if (!checkPost) {
             return res.status(401).json({ message: "Post not found" });
         }
 
+        const checklike = await Like.find({ likeUserId: userId, likePostId: postId });
 
+        if(checklike.length >=1){
+            return res.status(400).json({message: "Already liked" })
+        }
         const newLike = new Like({
             likeUserId: userId,
             likePostId: postId,
@@ -156,14 +161,12 @@ export const createComment = async (req, res) => {
 export const getAllPosts = async (req, res) => {
 
 
-    let { numberToSkip } = req.body;
+    const { numberToSkip } = req.body;
 
     try {
-        if (!numberToSkip) {
-            numberToSkip = "0"
-
-        }
-        const posts = await Post.find().sort({ createdAt: -1 }).skip(numberToSkip).exec();
+        // console.log(req.body)
+        // console.log(numberToSkip)
+        const posts = await Post.find().sort({ createdAt: -1 }).skip(numberToSkip).limit(10).exec();
 
         return res.status(200).json({
             posts
@@ -236,6 +239,28 @@ export const getComments = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" })
     }
 
+}
+
+export const checkLiked = async (req, res) => {
+    const { postId } = req.params;
+    const userId  = req.user._id;
+
+    try {
+        if (!postId) {
+            return res.status(400).json({ message: "postid required" })
+        }
+
+        const checklike = await Like.find({ likeUserId: userId, likePostId: postId });
+
+        if(checklike.length >=1){
+            return res.status(200).json({liked:true})
+        }else{
+            return res.status(200).json({liked:false})
+        }
+    } catch (error) {
+        console.log("error in check like controller", error.message);
+        return res.status(500).json({ message: "Internal server error" })
+    }
 }
 
 

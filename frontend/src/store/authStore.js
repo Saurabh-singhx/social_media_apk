@@ -11,7 +11,8 @@ export const authStore = create((set, get) => ({
     isLoggingIn: false,
     isCheckingAuth: true,
     isPosting: false,
-    isUpdatingProfile:false,
+    isUpdatingProfile: false,
+    isLoadingPosts: false,
     AllPosts: [],
     AllComments: [],
 
@@ -66,22 +67,31 @@ export const authStore = create((set, get) => ({
     },
 
     getAllPost: async (numberToSkip) => {
+        set({ isLoadingPosts: true });
         try {
             const { AllPosts } = get();
-            const res = await axiosInstance.get("/post/getposts", {
-                params: { numberToSkip: numberToSkip },
-            });
+            const res = await axiosInstance.post("/post/getposts", numberToSkip);
 
             const newPosts = Array.isArray(res.data.posts) ? res.data.posts : [res.data.posts];
 
-            set({ AllPosts: [...AllPosts, ...newPosts] });
+            // 🧠 Filter out duplicates by _id
+            const existingIds = new Set(AllPosts.map(post => post._id));
+            const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post._id));
 
-            // console.log("Fetched posts:", newPosts);
+            if(uniqueNewPosts.length === 0){
+                toast.error("No more posts to show")
+            }
+
+            set({ AllPosts: [...AllPosts, ...uniqueNewPosts] });
+
         } catch (error) {
             console.error("Error fetching posts:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch posts");
+        } finally {
+            set({ isLoadingPosts: false });
         }
     },
+
 
     createLike: async (postId) => {
         try {
@@ -131,6 +141,8 @@ export const authStore = create((set, get) => ({
             set({ isUpdatingProfile: false });
         }
     },
+
+    
 
 
 }))

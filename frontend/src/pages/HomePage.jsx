@@ -1,21 +1,21 @@
 import React, { useState } from 'react'
 import Card from '../components/Card'
-import { Plus, ImagePlus, X } from 'lucide-react'
+import { Plus, ImagePlus, X, Loader } from 'lucide-react'
 import { authStore } from '../store/authStore'
 import { useEffect } from 'react'
+import { useRef } from 'react'
 
 function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [content, setContent] = useState('')
   const [image, setImage] = useState(null)
-  const { getAllPost, AllPosts, createPost, isPosting } = authStore();
-
+  const { getAllPost, AllPosts, createPost, isPosting, isLoadingPosts } = authStore();
+  const [numberToSkip, setNumberToSkip] = useState(0)
 
 
   useEffect(() => {
-    getAllPost();
-
-  }, [])
+    getAllPost({ numberToSkip: numberToSkip });
+  }, [numberToSkip])
 
 
   const handlePostSubmit = async (e) => {
@@ -52,6 +52,17 @@ function HomePage() {
 
   // console.log(AllPosts)
 
+  const handleLoadMore = (e) => {
+    e.preventDefault();
+    setNumberToSkip((prev) => prev + 10);
+  }
+
+  if (isLoadingPosts) {
+    <div className="flex items-center justify-center h-screen">
+      <Loader className="w-10 h-10 animate-spin text-yellow-500" />
+    </div>
+  }
+
   return (
     <div className='relative min-h-screen pt-10'>
       {/* Posts Section */}
@@ -63,16 +74,21 @@ function HomePage() {
         ))}
       </div>
 
-      {/* Floating Create Post Button (centered) */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+      {/* Floating Create Post Button  */}
+      <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setIsModalOpen(true)}
-          className='bg-yellow-400 text-white p-4 rounded-full shadow-lg hover:bg-yellow-500 transition flex items-center gap-2'
+          className="bg-yellow-400 hover:bg-yellow-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition duration-300 group"
+          title="Create Post"
         >
-          <Plus size={20} />
-          <span className='font-medium'>Create Post</span>
+          <Plus size={24} />
+          <span className="absolute opacity-0 group-hover:opacity-100 bg-black text-white text-xs px-2 py-1 rounded-md -top-10 transition">
+            Create Post
+          </span>
         </button>
       </div>
+
+
 
       {/* Modal */}
       {isModalOpen && (
@@ -124,8 +140,8 @@ function HomePage() {
                 type='submit'
                 disabled={isPosting}
                 className={`w-full text-white py-2 rounded-md transition ${isPosting
-                    ? 'bg-yellow-300 cursor-not-allowed'
-                    : 'bg-yellow-400 hover:bg-yellow-500'
+                  ? 'bg-yellow-300 cursor-not-allowed'
+                  : 'bg-yellow-400 hover:bg-yellow-500'
                   }`}
               >
                 {isPosting ? 'Posting...' : 'Post'}
@@ -135,6 +151,16 @@ function HomePage() {
           </div>
         </>
       )}
+
+      {
+        !isLoadingPosts && (<div
+          className="flex items-start justify-center h-10 mb-2">
+          {/* <Loader className="w-10 h-10 animate-spin text-yellow-500" /> */}
+          <button
+            onClick={handleLoadMore}
+            className='bg-yellow-600 px-6 py-2 rounded-md text-white'>Load More..</button>
+        </div>)
+      }
     </div>
   )
 }
