@@ -40,7 +40,7 @@ export const signup = async (req, res) => {
 
             const newUser = new User({
                 fullName: fullName,
-                email: email,
+                email: dbotp.email,
                 password: hashedPassword,
 
             })
@@ -59,7 +59,7 @@ export const signup = async (req, res) => {
             } else {
                 return res.status(400).json({ message: "Invalid user data" })
             }
-        }else{
+        } else {
             return res.status(400).json({ message: "otp did not matched" })
         }
 
@@ -133,6 +133,9 @@ export const updateProfile = async (req, res) => {
         }
 
         const uploadResponse = await cloudinary.uploader.upload(profilepic);
+        if (!uploadResponse) {
+            return res.status(400).json({ message: "try uploading image with less size" });
+        }
         const updateUser = await User.findByIdAndUpdate(
             userId,
             { profilepic: uploadResponse.secure_url },
@@ -140,13 +143,27 @@ export const updateProfile = async (req, res) => {
         );
         return res.status(200).json({
             _id: updateUser._id,
-            fullname: updateUser.fullName,
+            fullName: updateUser.fullName,
             email: updateUser.email,
             profilepic: updateUser.profilepic,
-            Bio: updateUser.bio,
+            bio: updateUser.bio,
         });
     } catch (error) {
         console.log("error in updating profile", error.message);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+
+export const googleSignUp = async (req, res) => {
+  try {
+    const user = req.user; // Passport will set this
+    generateToken(user._id,res); // your JWT generator
+
+    // Redirect to your frontend with token
+    res.redirect(`http://localhost:5173`);
+  } catch (error) {
+    console.log("Error in Google signup", error);
+    res.redirect("http://localhost:5173/login?error=oauth_failed");
+  }
+};

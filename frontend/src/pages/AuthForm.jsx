@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { User, Mail, Lock, Key } from "lucide-react";
+import { FcGoogle } from "react-icons/fc"; // Google icon
 import { authStore } from "../store/authStore";
 
 const AuthForm = () => {
@@ -43,16 +44,13 @@ const AuthForm = () => {
         if (mode === "login") {
             login(formData);
         } else {
-            // Step 1: Send OTP on "Register"
             handleSendOtp(formData.email);
             setOtpSent(true);
         }
     };
 
     const handleSendOtp = async (email) => {
-        console.log(email)
-        sendOtp({ email: email });
-
+        sendOtp({ email });
     };
 
     const handleOtp = async () => {
@@ -62,6 +60,16 @@ const AuthForm = () => {
         };
         signup(fullFormData);
     };
+
+    const handleGoogleSignup = () => {
+        const baseURL =
+            import.meta.env.MODE === "development"
+                ? "http://localhost:5001"
+                : "https://socialmediaapk.onrender.com";
+
+        window.location.href = `${baseURL}/api/auth/google`;
+    };
+
 
     const isAllFilled = () => {
         if (mode === "login") {
@@ -123,8 +131,8 @@ const AuthForm = () => {
                                 <User
                                     size={18}
                                     className={`transition-colors duration-300 ${focusedInput === "fullName" || formData.fullName
-                                        ? "text-yellow-400"
-                                        : "text-gray-400"
+                                            ? "text-yellow-400"
+                                            : "text-gray-400"
                                         }`}
                                 />
                                 <input
@@ -149,8 +157,8 @@ const AuthForm = () => {
                             <Mail
                                 size={18}
                                 className={`transition-colors duration-300 ${focusedInput === "email" || formData.email
-                                    ? "text-yellow-400"
-                                    : "text-gray-400"
+                                        ? "text-yellow-400"
+                                        : "text-gray-400"
                                     }`}
                             />
                             <input
@@ -174,8 +182,8 @@ const AuthForm = () => {
                             <Lock
                                 size={18}
                                 className={`transition-colors duration-300 ${focusedInput === "password" || formData.password
-                                    ? "text-yellow-400"
-                                    : "text-gray-400"
+                                        ? "text-yellow-400"
+                                        : "text-gray-400"
                                     }`}
                             />
                             <input
@@ -200,9 +208,9 @@ const AuthForm = () => {
                                 <Lock
                                     size={18}
                                     className={`transition-colors duration-300 ${focusedInput === "confirmPassword" ||
-                                        formData.confirmPassword
-                                        ? "text-yellow-400"
-                                        : "text-gray-400"
+                                            formData.confirmPassword
+                                            ? "text-yellow-400"
+                                            : "text-gray-400"
                                         }`}
                                 />
                                 <input
@@ -252,6 +260,16 @@ const AuthForm = () => {
                             </button>
                         </>
                     )}
+
+                    {/* Google Login Button */}
+                    <button
+                        type="button"
+                        onClick={handleGoogleSignup}
+                        className="flex items-center justify-center gap-2 border border-gray-300 rounded-full py-2 w-full mt-4 hover:bg-gray-100 transition"
+                    >
+                        <FcGoogle size={20} />
+                        Continue with Google
+                    </button>
 
                     <div className="text-center mt-2 text-sm text-gray-600">
                         {mode === "login" ? (

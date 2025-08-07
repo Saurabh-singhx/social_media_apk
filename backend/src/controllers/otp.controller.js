@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import Otp from "../models/otp.model.js"; // add .js if using ES modules
+import Otp from "../models/otp.model.js";
 import User from "../models/user.model.js";
 
 dotenv.config();
@@ -50,7 +50,7 @@ export const otpVerify = async (req, res) => {
         await Otp.deleteMany({ email });
 
         // Save new OTP in DB
-        const otpEntry = new Otp({ email, otp }); // use `otp`, not `otpCode`
+        const otpEntry = new Otp({ email, otp }); 
         await otpEntry.save();
 
         // Send email
