@@ -181,17 +181,17 @@ export const getAllPosts = async (req, res) => {
 export const getMyPost = async (req, res) => {
 
     const userId = req.user._id;
-
+    const numberToSkip = req.body;
     try {
         const user = await User.findById(userId);
         if (!user) {
             return res.status(401).json({ message: "error not found while getting my posts" });
         }
 
-        const myPosts = await Post.find({ postUserId: userId })
+        const posts = await Post.find({ postUserId: userId }).sort({ createdAt: -1 }).skip(numberToSkip).limit(10).exec();
 
         return res.status(200).json({
-            mypost: myPosts
+            posts
         })
     } catch (error) {
         console.log("error in myPosts controller", error.message);

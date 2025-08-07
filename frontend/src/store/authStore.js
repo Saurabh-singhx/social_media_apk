@@ -14,6 +14,7 @@ export const authStore = create((set, get) => ({
     isUpdatingProfile: false,
     isLoadingPosts: false,
     AllPosts: [],
+    myPosts:[],
     AllComments: [],
 
 
@@ -78,9 +79,9 @@ export const authStore = create((set, get) => ({
             const existingIds = new Set(AllPosts.map(post => post._id));
             const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post._id));
 
-            if(uniqueNewPosts.length === 0){
-                toast.error("No more posts to show")
-            }
+            // if(uniqueNewPosts.length === 0){
+            //     toast.error("No more posts to show")
+            // }
 
             set({ AllPosts: [...AllPosts, ...uniqueNewPosts] });
 
@@ -139,6 +140,32 @@ export const authStore = create((set, get) => ({
             toast.error(error.response.data.message);
         } finally {
             set({ isUpdatingProfile: false });
+        }
+    },
+
+    getMyPost: async (numberToSkip) => {
+        set({ isLoadingPosts: true });
+        try {
+            const { myPosts } = get();
+            const res = await axiosInstance.get("/post/getmyposts", numberToSkip);
+
+            const newPosts = Array.isArray(res.data.posts) ? res.data.posts : [res.data.posts];
+
+            // 🧠 Filter out duplicates by _id
+            const existingIds = new Set(myPosts.map(post => post._id));
+            const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post._id));
+
+            // if(uniqueNewPosts.length === 0){
+            //     toast.error("No more posts to show")
+            // }
+
+            set({ myPosts: [...myPosts, ...uniqueNewPosts] });
+
+        } catch (error) {
+            console.error("Error fetching myposts:", error);
+            toast.error(error?.response?.data?.message || "Failed to fetch posts");
+        } finally {
+            set({ isLoadingPosts: false });
         }
     },
 

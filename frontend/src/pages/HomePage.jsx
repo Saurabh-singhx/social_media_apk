@@ -5,17 +5,21 @@ import { authStore } from '../store/authStore'
 import { useEffect } from 'react'
 import { useRef } from 'react'
 
-function HomePage() {
+function HomePage({ showMyPosts }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [content, setContent] = useState('')
   const [image, setImage] = useState(null)
-  const { getAllPost, AllPosts, createPost, isPosting, isLoadingPosts } = authStore();
+  const { getAllPost, AllPosts, createPost, isPosting, isLoadingPosts, myPosts, getMyPost } = authStore();
   const [numberToSkip, setNumberToSkip] = useState(0)
 
 
   useEffect(() => {
-    getAllPost({ numberToSkip: numberToSkip });
-  }, [numberToSkip])
+    if (!showMyPosts) {
+      getAllPost({ numberToSkip: numberToSkip });
+    } else {
+      getMyPost({ numberToSkip: numberToSkip });
+    }
+  }, [numberToSkip,showMyPosts])
 
 
   const handlePostSubmit = async (e) => {
@@ -66,13 +70,14 @@ function HomePage() {
   return (
     <div className='relative min-h-screen pt-10'>
       {/* Posts Section */}
-      <div className="flex flex-col items-center lg:w-[65%] mx-auto md:w-[80%] w-[95%] mt-10" >
-        {AllPosts.map((index) => (
-          <div key={index._id} className="w-full">
-            <Card post={index} />
+      <div className="flex flex-col items-center lg:w-[65%] mx-auto md:w-[80%] w-[95%] mt-10">
+        {(showMyPosts ? myPosts : AllPosts).map((post) => (
+          <div key={post._id} className="w-full">
+            <Card post={post} />
           </div>
         ))}
       </div>
+
 
       {/* Floating Create Post Button  */}
       <div className="fixed bottom-6 right-6 z-50">

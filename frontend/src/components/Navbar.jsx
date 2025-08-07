@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Menu, X, UserCircle, LogOut, Camera } from "lucide-react";
 import { authStore } from "../store/authStore";
 
-const Navbar = () => {
+const Navbar = ({ onToggleView,showMyPosts,setShowMyPosts}) => {
   const [open, setOpen] = useState(false);
-  // const [selectedImg, setSelectedImg] = useState(second)
+
+
   const { logout, authUser, updateProfile } = authStore();
 
   const toggleDrawer = () => setOpen(!open);
@@ -23,9 +24,16 @@ const Navbar = () => {
 
     reader.onload = async () => {
       const base64Image = reader.result;
-      // setSelectedImg(base64Image);
       await updateProfile({ profilepic: base64Image });
     };
+  };
+
+  const handlePostViewToggle = () => {
+    const updatedState = !showMyPosts;
+    setShowMyPosts(updatedState);
+    if (onToggleView) {
+      onToggleView(updatedState); // tell parent component about change
+    }
   };
 
   return (
@@ -51,7 +59,44 @@ const Navbar = () => {
             Profile
           </span>
         </div>
-        <h1 className="text-xl font-bold text-gray-800">MyApp</h1>
+
+        {/* Post View Toggle */}
+        <div className="flex items-center gap-3 bg-gray-100 px-2 py-1 rounded-full">
+          {/* Label - All Posts */}
+          <span
+            className={`text-sm font-medium px-3 py-1 rounded-full transition ${!showMyPosts
+                ? "bg-yellow-400 text-white shadow"
+                : "text-gray-500"
+              }`}
+          >
+            All Posts
+          </span>
+
+          {/* Toggle Switch */}
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showMyPosts}
+              onChange={handlePostViewToggle}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-yellow-400 transition-colors duration-300"></div>
+            <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 peer-checked:translate-x-full"></div>
+          </label>
+
+          {/* Label - My Posts */}
+          <span
+            className={`text-sm font-medium px-3 py-1 rounded-full transition ${showMyPosts
+                ? "bg-yellow-400 text-white shadow"
+                : "text-gray-500"
+              }`}
+          >
+            My Posts
+          </span>
+        </div>
+
+
+        {/* Right side icons */}
         <div className="flex items-center gap-4">
           {/* Search Input (optional) */}
           <div className="hidden md:flex items-center bg-gray-100 px-3 py-1 rounded-full shadow-sm">
@@ -67,11 +112,16 @@ const Navbar = () => {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M5.5 11a5.5 5.5 0 1011 0 5.5 5.5 0 00-11 0z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-4.35-4.35M5.5 11a5.5 5.5 0 1011 0 5.5 5.5 0 00-11 0z"
+              />
             </svg>
           </div>
 
-          {/* Notification Bell (placeholder) */}
+          {/* Notification Bell */}
           <button className="relative">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -82,11 +132,9 @@ const Navbar = () => {
               <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
               <path d="M10 18a2 2 0 002-2H8a2 2 0 002 2z" />
             </svg>
-            {/* Optional red dot for unread notifications */}
             <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full animate-ping" />
           </button>
         </div>
-
       </nav>
 
       {/* Profile Drawer */}
@@ -154,10 +202,7 @@ const Navbar = () => {
 
       {/* Background Overlay */}
       {open && (
-        <div
-          onClick={toggleDrawer}
-          className="fixed inset-0 bg-black/40 z-40"
-        />
+        <div onClick={toggleDrawer} className="fixed inset-0 bg-black/40 z-40" />
       )}
     </div>
   );

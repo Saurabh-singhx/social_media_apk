@@ -11,6 +11,7 @@ import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
 
 function App() {
+    const [showMyPosts, setShowMyPosts] = useState(false); // Toggle state
   const { isCheckingAuth, checkAuth, authUser} = authStore();
   
 
@@ -32,8 +33,8 @@ function App() {
   return (
     <div >
       <Routes>
-        <Route path="/" element={authUser ? <><div className='fixed top-0 w-full z-20'><Navbar/></div> <HomePage/></> : <Navigate to="/loginSignUp" />} />
-        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/loginSignUp" />} />
+        <Route path="/" element={authUser ? <><div className='fixed top-0 w-full z-20'><Navbar showMyPosts={showMyPosts} setShowMyPosts={setShowMyPosts}/></div> <HomePage showMyPosts={showMyPosts}/></> : <Navigate to="/loginSignUp" />} />
+        {/* <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/loginSignUp" />} /> */}
         <Route path="/loginSignUp" element={!authUser ? <AuthForm /> : <Navigate to="/" />} />
       </Routes>
       <Toaster />
