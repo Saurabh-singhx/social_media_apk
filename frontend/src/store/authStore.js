@@ -2,8 +2,6 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
-// const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
-
 export const authStore = create((set, get) => ({
 
     authUser: null,
@@ -13,6 +11,7 @@ export const authStore = create((set, get) => ({
     isPosting: false,
     isUpdatingProfile: false,
     isLoadingPosts: false,
+    isLoadingMyPosts: false,
     AllPosts: [],
     myPosts: [],
     AllComments: [],
@@ -81,10 +80,6 @@ export const authStore = create((set, get) => ({
             const existingIds = new Set(AllPosts.map(post => post._id));
             const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post._id));
 
-            // if(uniqueNewPosts.length === 0){
-            //     toast.error("No more posts to show")
-            // }
-
             set({ AllPosts: [...AllPosts, ...uniqueNewPosts] });
 
         } catch (error) {
@@ -139,6 +134,7 @@ export const authStore = create((set, get) => ({
             set({ authUser: res.data });
             toast.success("Profile updated successfully");
         } catch (error) {
+            set({ isUpdatingProfile: false });
             console.log("error in update profile:", error);
             toast.error(error.response.data.message);
         } finally {
@@ -147,7 +143,7 @@ export const authStore = create((set, get) => ({
     },
 
     getMyPost: async (numberToSkip) => {
-        set({ isLoadingPosts: true });
+        set({ isLoadingMyPosts: true });
         try {
             const { myPosts } = get();
             const res = await axiosInstance.get("/post/getmyposts", numberToSkip);
@@ -158,18 +154,14 @@ export const authStore = create((set, get) => ({
             const existingIds = new Set(myPosts.map(post => post._id));
             const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post._id));
 
-            // if(uniqueNewPosts.length === 0){
-            //     toast.error("No more posts to show")
-            // }
-
             set({ myPosts: [...myPosts, ...uniqueNewPosts] });
 
         } catch (error) {
-            set({ isLoadingPosts: false });
+            set({ isLoadingMyPosts: false });
             console.error("Error fetching myposts:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch posts");
         } finally {
-            set({ isLoadingPosts: false });
+            set({ isLoadingMyPosts: false });
         }
     },
 

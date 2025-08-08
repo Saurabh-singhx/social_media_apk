@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { Menu, X, UserCircle, LogOut, Camera } from "lucide-react";
+import { Menu, X, UserCircle, LogOut, Camera,UserPen} from "lucide-react";
 import { authStore } from "../store/authStore";
+import { HashLoader } from "react-spinners";
 
-const Navbar = ({ onToggleView,showMyPosts,setShowMyPosts}) => {
+const Navbar = ({ showMyPosts, setShowMyPosts }) => {
   const [open, setOpen] = useState(false);
+  const [enteredBio, setEnteredBio] = useState("");
+  const [enteredName, setEntredName] = useState("")
 
 
-  const { logout, authUser, updateProfile } = authStore();
+  const { logout, authUser, updateProfile, isUpdatingProfile } = authStore();
 
   const toggleDrawer = () => setOpen(!open);
 
@@ -31,10 +34,8 @@ const Navbar = ({ onToggleView,showMyPosts,setShowMyPosts}) => {
   const handlePostViewToggle = () => {
     const updatedState = !showMyPosts;
     setShowMyPosts(updatedState);
-    if (onToggleView) {
-      onToggleView(updatedState); // tell parent component about change
-    }
   };
+
 
   return (
     <div>
@@ -65,8 +66,8 @@ const Navbar = ({ onToggleView,showMyPosts,setShowMyPosts}) => {
           {/* Label - All Posts */}
           <span
             className={`text-sm font-medium px-3 py-1 rounded-full transition ${!showMyPosts
-                ? "bg-yellow-400 text-white shadow"
-                : "text-gray-500"
+              ? "bg-yellow-400 text-white shadow"
+              : "text-gray-500"
               }`}
           >
             All Posts
@@ -87,8 +88,8 @@ const Navbar = ({ onToggleView,showMyPosts,setShowMyPosts}) => {
           {/* Label - My Posts */}
           <span
             className={`text-sm font-medium px-3 py-1 rounded-full transition ${showMyPosts
-                ? "bg-yellow-400 text-white shadow"
-                : "text-gray-500"
+              ? "bg-yellow-400 text-white shadow"
+              : "text-gray-500"
               }`}
           >
             My Posts
@@ -142,62 +143,85 @@ const Navbar = ({ onToggleView,showMyPosts,setShowMyPosts}) => {
         className={`fixed top-0 left-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
           }`}
       >
-        <div className="p-4 flex justify-between items-center border-b">
-          <h2 className="text-lg font-semibold text-gray-700">My Profile</h2>
-          <button onClick={toggleDrawer}>
-            <X className="text-gray-600 hover:text-red-500 transition" />
-          </button>
-        </div>
+        {
+          !isUpdatingProfile ? (
+            <>
+              {/* Header */}
+              <div className="p-4 flex justify-between items-center border-b">
+                <h2 className="text-lg font-semibold text-gray-700">My Profile</h2>
+                <button onClick={toggleDrawer}>
+                  <X className="text-gray-600 hover:text-red-500 transition" />
+                </button>
+              </div>
 
-        <div className="p-6 flex flex-col items-center text-center relative">
-          {/* Profile Image */}
-          {authUser.profilepic ? (
-            <img
-              src={authUser.profilepic}
-              alt="Profile"
-              className="w-20 h-20 rounded-full object-cover border-4 border-yellow-400 mb-3"
-            />
+              {/* Profile Info */}
+              <div className="p-6 flex flex-col items-center text-center relative ">
+                {/* Profile Image */}
+                {authUser.profilepic ? (
+                  <img
+                    src={authUser.profilepic}
+                    alt="Profile"
+                    className="w-20 h-20 rounded-full object-cover border-4 border-yellow-400 mb-3"
+                  />
+                ) : (
+                  <UserCircle size={72} className="text-yellow-400 mb-3" />
+                )}
+
+                {/* Upload Icon Overlay */}
+                <label className="absolute top-8 right-28 bg-white p-1 rounded-full cursor-pointer border shadow">
+                  <Camera size={18} className="text-yellow-500" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                {/* Name & Email */}
+                <div className="flex flex-col gap-2 relative">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {authUser.fullName}
+                  </h3>
+                  <p className="text-sm text-gray-500">{authUser.email}</p>
+
+                  {/* Bio */}
+                  {authUser.bio && (
+                    <span className="text-xs mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">
+                      {authUser.bio}
+                    </span>
+                  )}
+                  <button 
+                  title="update profile"
+                  className="absolute -right-10 p-1 bg-white rounded-full shadow  border"><UserPen size={18} className=" text-yellow-500 "/></button>
+                </div>
+
+                <div className="w-full border-t my-4" />
+                <p className="text-xs text-gray-400">
+                  Joined: {new Date(authUser.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+
+              {/* Logout Button */}
+              <div className="px-6 mt-4">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-2 rounded-full transition"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              </div>
+            </>
           ) : (
-            <UserCircle size={72} className="text-yellow-400 mb-3" />
-          )}
+            <div className="flex justify-center items-center p-6 text-gray-500 mt-auto h-80 flex-col">
+              <HashLoader color={"#f8e513"} size={40} />
+              <div>Updating Your profile👍</div>
+            </div>
+          )
+        }
 
-          {/* Upload Icon Overlay */}
-          <label className="absolute top-5 right-6 bg-white p-1 rounded-full cursor-pointer border shadow">
-            <Camera size={18} className="text-yellow-500" />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-          </label>
 
-          <h3 className="text-xl font-semibold text-gray-800">
-            {authUser.fullName}
-          </h3>
-          <p className="text-sm text-gray-500">{authUser.email}</p>
-
-          {authUser.bio && (
-            <span className="text-xs mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">
-              {authUser.bio}
-            </span>
-          )}
-
-          <div className="w-full border-t my-4" />
-          <p className="text-xs text-gray-400">
-            Joined: {new Date(authUser.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-
-        <div className="px-6 mt-4">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-2 rounded-full transition"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
-        </div>
       </div>
 
       {/* Background Overlay */}

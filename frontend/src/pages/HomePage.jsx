@@ -4,12 +4,13 @@ import { Plus, ImagePlus, X, Loader } from 'lucide-react'
 import { authStore } from '../store/authStore'
 import { useEffect } from 'react'
 import { useRef } from 'react'
+import { HashLoader } from "react-spinners";
 
 function HomePage({ showMyPosts }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [content, setContent] = useState('')
   const [image, setImage] = useState(null)
-  const { getAllPost, AllPosts, createPost, isPosting, isLoadingPosts, myPosts, getMyPost } = authStore();
+  const { getAllPost, AllPosts, createPost, isPosting, isLoadingMyPosts, myPosts, getMyPost,isLoadingPosts } = authStore();
   const [numberToSkip, setNumberToSkip] = useState(0)
 
 
@@ -61,12 +62,14 @@ function HomePage({ showMyPosts }) {
     setNumberToSkip((prev) => prev + 10);
   }
 
-  if (isLoadingPosts) {
-    <div className="flex items-center justify-center h-screen">
-      <Loader className="w-10 h-10 animate-spin text-yellow-500" />
-    </div>
+  if (isLoadingMyPosts) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        {/* <Loader className="w-10 h-10 animate-spin text-yellow-500" /> */}
+        <HashLoader color={"#f8e513"} size={40} />
+      </div>
+    )
   }
-
   return (
     <div className='relative min-h-screen pt-10'>
       {/* Posts Section */}
@@ -84,10 +87,10 @@ function HomePage({ showMyPosts }) {
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-yellow-400 hover:bg-yellow-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition duration-300 group"
-          title="Create Post"
+          
         >
           <Plus size={24} />
-          <span className="absolute opacity-0 group-hover:opacity-100 bg-black text-white text-xs px-2 py-1 rounded-md -top-10 transition">
+          <span className="absolute opacity-0 group-hover:opacity-100 bg-yellow-400 text-white text-xs px-2 py-1 rounded-md -top-10 transition font-bold">
             Create Post
           </span>
         </button>
@@ -158,7 +161,7 @@ function HomePage({ showMyPosts }) {
       )}
 
       {
-        !isLoadingPosts && !showMyPosts&& (<div
+        !isLoadingPosts && !showMyPosts && (<div
           className="flex items-start justify-center h-10 mb-2">
           {/* <Loader className="w-10 h-10 animate-spin text-yellow-500" /> */}
           <button
