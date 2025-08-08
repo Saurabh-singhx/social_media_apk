@@ -8,6 +8,7 @@ import cors from "cors";
 import path from "path";
 import passport from "./lib/passport.js";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 
 dotenv.config();
 const app = express();
@@ -27,18 +28,25 @@ app.use(cookieParser());
 // Ensure you have a session secret in env for production
 const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-me";
 
+import MongoStore from "connect-mongo";
+
 app.use(
   session({
-    secret: SESSION_SECRET,
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      collectionName: "sessions",
+    }),
     cookie: {
-      secure: process.env.NODE_ENV === "production", 
+      secure: process.env.NODE_ENV === "production", // only secure in prod
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
+
 
 app.use(passport.initialize());
 app.use(passport.session());
