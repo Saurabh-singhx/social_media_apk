@@ -1,5 +1,5 @@
 import express from "express"
-import { checkAuth, googleSignUp, login, logout, signup, updateProfile } from "../controllers/auth.controller.js";
+import { checkAuth, googleSignUp, login, logout, signup, updateProfile, updateProfileDetails } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { otpVerify } from "../controllers/otp.controller.js";
 import passport from "passport";
@@ -12,6 +12,7 @@ router.post("/login", login);
 router.post("/logout", logout);
 router.get("/check",protectRoute,checkAuth);
 router.put("/update-profile",protectRoute,updateProfile);
+router.put("/update-profiledetails",protectRoute,updateProfileDetails);
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })

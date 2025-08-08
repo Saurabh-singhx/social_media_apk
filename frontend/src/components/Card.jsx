@@ -66,8 +66,7 @@ const Card = ({ post }) => {
     setComments(prev => [newComment, ...prev]);
     setCommentInput("");
 
-    
-
+  
   };
 
   const getComments = async () => {
@@ -103,10 +102,6 @@ const Card = ({ post }) => {
     getLikes();
     checkLiked();
   }, []);
-
-  // console.log(comments)
-  // console.log(likes)
-  // console.log(post)
 
   return (
     <div className="w-full max-w-screen-md mx-auto bg-slate-100 rounded-2xl shadow-md overflow-hidden mb-6 border border-gray-100">

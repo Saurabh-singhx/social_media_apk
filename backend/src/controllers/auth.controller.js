@@ -147,6 +147,7 @@ export const updateProfile = async (req, res) => {
             email: updateUser.email,
             profilepic: updateUser.profilepic,
             bio: updateUser.bio,
+            createdAt: updateUser.createdAt
         });
     } catch (error) {
         console.log("error in updating profile", error.message);
@@ -155,24 +156,59 @@ export const updateProfile = async (req, res) => {
 }
 
 
+export const updateProfileDetails = async (req, res) => {
+    try {
+        const { bio, name } = req.body;
+        const userId = req.user._id;
+
+        if (!bio && !name) {
+            return res.status(400).json({ message: "Details not provided" });
+        }
+
+        const updateFields = {};
+        if (bio) updateFields.bio = bio;
+        if (name) updateFields.fullName = name;
+
+        const updateUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updateFields },
+            { new: true } // returns the updated document
+        );
+
+        return res.status(200).json({
+            _id: updateUser._id,
+            fullName: updateUser.fullName,
+            email: updateUser.email,
+            profilepic: updateUser.profilepic,
+            bio: updateUser.bio,
+            createdAt: updateUser.createdAt
+        });
+    } catch (error) {
+        console.log("Error in updating profile details:", error.message);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+
 export const googleSignUp = async (req, res) => {
-  try {
-    const user = req.user; // Passport sets this
-    generateToken(user._id, res); // your JWT generator
+    try {
+        const user = req.user; // Passport sets this
+        generateToken(user._id, res); // your JWT generator
 
-    const redirectUrl =
-      process.env.NODE_ENV === "development"
-        ? "http://localhost:5173"
-        : "https://socialmediaapk.onrender.com";
+        const redirectUrl =
+            process.env.NODE_ENV === "development"
+                ? "http://localhost:5173"
+                : "https://socialmediaapk.onrender.com";
 
-    res.redirect(redirectUrl);
-  } catch (error) {
-    console.log("Error in Google signup", error);
-    const errorRedirect =
-      process.env.NODE_ENV === "development"
-        ? "http://localhost:5173/login?error=oauth_failed"
-        : "https://socialmediaapk.onrender.com/login?error=oauth_failed";
-    res.redirect(errorRedirect);
-  }
+        res.redirect(redirectUrl);
+    } catch (error) {
+        console.log("Error in Google signup", error);
+        const errorRedirect =
+            process.env.NODE_ENV === "development"
+                ? "http://localhost:5173/login?error=oauth_failed"
+                : "https://socialmediaapk.onrender.com/login?error=oauth_failed";
+        res.redirect(errorRedirect);
+    }
 };
 

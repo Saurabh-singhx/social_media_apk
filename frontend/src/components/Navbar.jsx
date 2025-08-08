@@ -1,22 +1,32 @@
-import React, { useState } from "react";
-import { Menu, X, UserCircle, LogOut, Camera,UserPen} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Menu, X, UserCircle, LogOut, Camera, UserPen } from "lucide-react";
 import { authStore } from "../store/authStore";
 import { HashLoader } from "react-spinners";
 
 const Navbar = ({ showMyPosts, setShowMyPosts }) => {
   const [open, setOpen] = useState(false);
   const [enteredBio, setEnteredBio] = useState("");
-  const [enteredName, setEntredName] = useState("")
+  const [enteredName, setEntredName] = useState("");
+  const [profiledetailsbtn, setProfiledetailsbtn] = useState(false)
 
 
-  const { logout, authUser, updateProfile, isUpdatingProfile } = authStore();
+  const { logout, authUser, updateProfile, isUpdatingProfile,updateProfileDetails } = authStore();
 
-  const toggleDrawer = () => setOpen(!open);
-
+  const toggleDrawer = () => {
+    setOpen(!open)
+    setProfiledetailsbtn(false);
+  };
+  const toggleProfileForm = () => setProfiledetailsbtn(true);
+  const closeProfileForm = () => setProfiledetailsbtn(false);
   const handleLogout = () => {
     logout();
   };
 
+  useEffect(() => {
+    setEnteredBio(authUser.bio);
+    setEntredName(authUser.fullName);
+  }, [])
+  
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -35,6 +45,16 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
     const updatedState = !showMyPosts;
     setShowMyPosts(updatedState);
   };
+
+  const handleprofiledetailssubmit = (e) => {
+    e.preventDefault();
+    const data = {
+      name:enteredName,
+      bio:enteredBio
+    }
+    updateProfileDetails(data);
+    setProfiledetailsbtn(false);
+  }
 
 
   return (
@@ -179,22 +199,72 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
                 </label>
 
                 {/* Name & Email */}
-                <div className="flex flex-col gap-2 relative">
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    {authUser.fullName}
-                  </h3>
-                  <p className="text-sm text-gray-500">{authUser.email}</p>
 
-                  {/* Bio */}
-                  {authUser.bio && (
-                    <span className="text-xs mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">
-                      {authUser.bio}
-                    </span>
-                  )}
-                  <button 
-                  title="update profile"
-                  className="absolute -right-10 p-1 bg-white rounded-full shadow  border"><UserPen size={18} className=" text-yellow-500 "/></button>
-                </div>
+                {
+                  !profiledetailsbtn ? (<div className="flex flex-col gap-2 relative">
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      {authUser.fullName}
+                    </h3>
+                    <p className="text-sm text-gray-500">{authUser.email}</p>
+
+                    {/* Bio */}
+                    {authUser.bio && (
+                      <span className="text-xs mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">
+                        {authUser.bio}
+                      </span>
+                    )}
+                    <button
+                      onClick={toggleProfileForm}
+                      title="update profile"
+                      className="absolute -right-10 p-1 bg-white rounded-full shadow  border"><UserPen size={18} className=" text-yellow-500 " /></button>
+                  </div>) : (<form
+                    onSubmit={handleprofiledetailssubmit}
+                    className="flex flex-col w-full max-w-md mx-auto bg-white shadow-md rounded-xl p-6 space-y-4 relative"
+                  >
+                    <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                      Update Profile
+                    </h2>
+
+                    {/* Name Field */}
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-600 mb-1">
+                        Your Name
+                      </label>
+                      <input
+                        value={enteredName}
+                        onChange={(e) => setEntredName(e.target.value)}
+                        type="text"
+                        placeholder="Enter your name"
+                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                      />
+                    </div>
+
+                    {/* Bio Field */}
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-600 mb-1">
+                        Your Bio
+                      </label>
+                      <textarea
+                        value={enteredBio}
+                        onChange={(e) => setEnteredBio(e.target.value)}
+                        placeholder="Write a short bio..."
+                        rows="3"
+                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+                      ></textarea>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-medium py-2 px-4 rounded-lg transition"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={closeProfileForm}
+                      className="absolute right-0 -top-2"><X className="text-gray-600 hover:text-red-500 transition"/></button>
+                  </form>)
+                }
 
                 <div className="w-full border-t my-4" />
                 <p className="text-xs text-gray-400">
