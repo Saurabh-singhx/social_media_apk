@@ -28,7 +28,6 @@ app.use(cookieParser());
 // Ensure you have a session secret in env for production
 const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-me";
 
-import MongoStore from "connect-mongo";
 
 app.use(
   session({
