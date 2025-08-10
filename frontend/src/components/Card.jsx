@@ -160,7 +160,7 @@ const Card = ({ post }) => {
           className={`flex items-center gap-1 transition ${isLiked ? "text-yellow-500" : "hover:text-yellow-500"
             }`}
         >
-          <Heart size={18} />
+          <Heart size={20} className={isLiked ? "fill-current" : ""} />
           {likes} Like
         </button>
 
@@ -185,7 +185,7 @@ const Card = ({ post }) => {
           <img
             src={authUser.profilepic}
             alt="Your Profile"
-            className="w-9 h-9 rounded-full object-cover"
+            className="w-9 h-9 rounded-full object-cover shrink-0"
           />
         ) : (
           <UserCircle className="w-9 h-9 text-gray-400" />

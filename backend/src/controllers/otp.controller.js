@@ -30,7 +30,7 @@ export const otpVerify = async (req, res) => {
 
         // Email content
         const mailOptions = {
-            from: `"MyApp 🚀" <${process.env.EMAIL_USER}>`,
+            from: `"SOCIAL-X 🚀" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: "🔐 Your OTP Code - Secure Login",
             html: `
@@ -41,7 +41,7 @@ export const otpVerify = async (req, res) => {
                 <p>⏳ This code is valid for <strong>5 minutes</strong>.</p>
                 <p>If you didn't request this, please ignore this email. 🔒</p>
                 <br/>
-                <p>Cheers,<br/>The MyApp Team 💛</p>
+                <p>Cheers,<br/>The SOCIAL-X Team 💛</p>
                 </div>`,
         };
 

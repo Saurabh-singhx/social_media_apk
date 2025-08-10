@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Card from '../components/Card'
-import { Plus, ImagePlus, X, Loader } from 'lucide-react'
+import { Plus, ImagePlus, X, Loader, FileText } from 'lucide-react'
 import { authStore } from '../store/authStore'
 import { useEffect } from 'react'
 import { useRef } from 'react'
@@ -12,7 +12,7 @@ function HomePage({ showMyPosts }) {
   const [image, setImage] = useState(null)
   const { getAllPost, AllPosts, createPost, isPosting, isLoadingMyPosts, myPosts, getMyPost, isLoadingPosts } = authStore();
   const [numberToSkip, setNumberToSkip] = useState(0)
-
+  const [imagePreview, setImagePreview] = useState(null)
 
   useEffect(() => {
     if (!showMyPosts) {
@@ -62,6 +62,15 @@ function HomePage({ showMyPosts }) {
     setNumberToSkip((prev) => prev + 10);
   }
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setImage(file)
+      setImagePreview(URL.createObjectURL(file)); // Create preview URL
+    }
+  };
+
   if (isLoadingMyPosts) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
@@ -70,6 +79,7 @@ function HomePage({ showMyPosts }) {
       </div>
     )
   }
+
   return (
     <div className='relative min-h-screen pt-10 pb-4'>
       {/* Posts Section */}
@@ -116,7 +126,9 @@ function HomePage({ showMyPosts }) {
             >
               {/* Close Button */}
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {setIsModalOpen(false)
+                  setImage(null)
+                }}
                 type="button"
                 className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
               >
@@ -133,15 +145,24 @@ function HomePage({ showMyPosts }) {
                 onChange={(e) => setContent(e.target.value)}
               ></textarea>
 
-              <label className='flex items-center gap-2 text-sm text-gray-600 cursor-pointer'>
+              <label className='flex items-center gap-2 text-sm text-gray-600 cursor-pointer flex-col w-auto overflow-hidden'>
                 <ImagePlus size={18} className='text-yellow-500' />
                 Add Image
                 <input
                   type='file'
                   accept='image/*'
                   className='hidden'
-                  onChange={(e) => setImage(e.target.files[0])}
+                  onChange={handleImageChange}
                 />
+                {
+                  image && (<div className='flex items-start flex-col'>
+                    {/* <FileText size={16} className="text-yellow-400" />
+                    {image.name} */}
+                    <img src={imagePreview} alt="" />
+                  </div>)
+                }
+
+
               </label>
 
               <button
@@ -167,7 +188,7 @@ function HomePage({ showMyPosts }) {
             onClick={handleLoadMore}
             className='bg-yellow-200 px-4 rounded-full text-yellow-600 h-6'>Load More..</button>
         </div>) : (<div
-          className={`flex items-center justify-center h-6 mb-2 ${showMyPosts ? "hidden" : "flex"} ${AllPosts.length<=0 ?"h-[80vh]":""}`}
+          className={`flex items-center justify-center h-6 mb-2 ${showMyPosts ? "hidden" : "flex"} ${AllPosts.length <= 0 ? "h-[80vh]" : ""}`}
         >
           <HashLoader color="#f8e513" size={30} />
         </div>)

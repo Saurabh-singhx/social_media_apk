@@ -164,8 +164,6 @@ export const getAllPosts = async (req, res) => {
     const { numberToSkip } = req.body;
 
     try {
-        // console.log(req.body)
-        // console.log(numberToSkip)
         const posts = await Post.find().sort({ createdAt: -1 }).skip(numberToSkip).limit(10).exec();
 
         return res.status(200).json({
