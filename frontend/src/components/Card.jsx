@@ -103,6 +103,8 @@ const Card = ({ post }) => {
     checkLiked();
   }, []);
 
+  // console.log(post)
+
   return (
     <div className="w-full max-w-screen-md mx-auto bg-slate-100 rounded-2xl shadow-md overflow-hidden mb-6 border border-gray-100">
 
@@ -124,6 +126,15 @@ const Card = ({ post }) => {
             {new Date(post.createdAt).toLocaleDateString()}
           </p>
         </div>
+
+        {
+          (post.postUserId === authUser._id)?(<span className="font-semibold text-yellow-700 bg-yellow-200 px-2 rounded-full">me</span>):(<button className=" py-1 px-5 bg-yellow-100 rounded-full font-semibold text-yellow-600 border border-amber-900">
+          follow
+          </button>)
+        }
+        
+
+          
       </div>
 
 

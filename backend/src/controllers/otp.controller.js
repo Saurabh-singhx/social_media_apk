@@ -12,8 +12,8 @@ export const otpVerify = async (req, res) => {
 
     try {
 
-        const user = User.find({email})
-        if(user._id){
+        const user = User.findOne({email})
+        if(user){
             return res.status(400).json({ message: "email already exists try loging in" });
         }
         // Generate 6-digit OTP

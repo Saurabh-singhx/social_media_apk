@@ -12,9 +12,11 @@ export const authStore = create((set, get) => ({
     isUpdatingProfile: false,
     isLoadingPosts: false,
     isLoadingMyPosts: false,
+    
     AllPosts: [],
     myPosts: [],
     AllComments: [],
+    
 
 
     checkAuth: async () => {
@@ -193,5 +195,7 @@ export const authStore = create((set, get) => ({
             toast.error(error?.response?.data?.message || "Failed to fetch posts");
         }
     }
+
+
 
 }))

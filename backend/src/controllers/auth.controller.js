@@ -23,16 +23,10 @@ export const signup = async (req, res) => {
 
         const user = await User.findOne({ email });
 
-        const dbotp = await Otp.findOne({ email })
 
-        if (!dbotp) {
-            return res.status(400).json({ message: "check your email and try again" });
-        }
+        const dbotp = await Otp.findOne({ email})
 
         if (otp === dbotp.otp) {
-            if (user) {
-                return res.status(400).json({ message: "user already exists" })
-            }
 
             const salt = await bcrypt.genSalt(10);
 

@@ -8,6 +8,8 @@ import { Navigate, Route, Routes } from 'react-router'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
 import { HashLoader } from "react-spinners";
+import UsersList from './components/UsersList'
+import AddUsersCard from './components/addUsersCard'
 
 function App() {
   const [showMyPosts, setShowMyPosts] = useState(false); // Toggle state
@@ -31,12 +33,14 @@ function App() {
   }
 
   
+  
   return (
     <div >
       <Routes>
         <Route path="/" element={authUser ? <><div className='fixed top-0 w-full z-20'><Navbar showMyPosts={showMyPosts} setShowMyPosts={setShowMyPosts} /></div> <HomePage showMyPosts={showMyPosts} /></> : <Navigate to="/loginSignUp" />} />
         <Route path="/loginSignUp" element={!authUser ? <AuthForm /> : <Navigate to="/" />} />
       </Routes>
+      
       <Toaster />
     </div>
 

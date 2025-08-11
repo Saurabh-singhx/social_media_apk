@@ -24,7 +24,9 @@ const userSchema = new mongoose.Schema(
             type:String,
             default:"I am a Developer 😉",
             maxlength:100,
-        }
+        },
+        following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        follower: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         
     },{timestamps:true}
 );
