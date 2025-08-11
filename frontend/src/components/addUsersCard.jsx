@@ -6,7 +6,7 @@ import { HashLoader } from "react-spinners";
 export default function AddUsersCard({ users }) {
   const [follow, setFollow] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { checkFollowing,setFollowing,setUnFollowing,isSettingFollow} = contactsStore();
+  const { checkFollowing,setFollowing,setUnFollowing,isSettingFollow,navRefresh} = contactsStore();
 
   useEffect(() => {
     const fetchFollowStatus = async () => {
@@ -22,12 +22,10 @@ export default function AddUsersCard({ users }) {
     };
 
     fetchFollowStatus();
-  }, []);
+  }, [navRefresh]);
 
   const handleFollow = (user) => {
-    
-    console.log(`Followed ${user.fullName}`);
-    // TODO: Call backend API to follow user
+  
     if(!follow){
       setFollowing(user._id)
       setFollow(true)

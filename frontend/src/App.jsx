@@ -10,10 +10,12 @@ import HomePage from './pages/HomePage'
 import { HashLoader } from "react-spinners";
 import UsersList from './components/UsersList'
 import AddUsersCard from './components/addUsersCard'
+import { contactsStore } from './store/contactsStore'
 
 function App() {
   const [showMyPosts, setShowMyPosts] = useState(false); // Toggle state
   const { isCheckingAuth, checkAuth, authUser } = authStore();
+  const {navRefresh} = contactsStore();
 
 
 
@@ -21,7 +23,7 @@ function App() {
 
     checkAuth();
 
-  }, [])
+  }, [navRefresh])
 
   if (isCheckingAuth && !authUser) {
     return (

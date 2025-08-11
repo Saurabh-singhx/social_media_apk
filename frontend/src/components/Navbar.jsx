@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, UserCircle, LogOut, Camera, UserPen } from "lucide-react";
+import { Menu, X, UserCircle, LogOut, Camera, UserPen, Users, UserCheck } from "lucide-react";
 import { authStore } from "../store/authStore";
 import { HashLoader } from "react-spinners";
 
@@ -207,136 +207,160 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
         className={`fixed top-0 left-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
           }`}
       >
-        {
-          !isUpdatingProfile ? (
-            <>
-              {/* Header */}
-              <div className="p-4 flex justify-between items-center border-b">
-                <h2 className="text-lg font-semibold text-gray-700">My Profile</h2>
-                <button onClick={toggleDrawer}>
-                  <X className="text-gray-600 hover:text-red-500 transition" />
-                </button>
-              </div>
-
-              {/* Profile Info */}
-              <div className="p-6 flex flex-col items-center text-center relative ">
-                {/* Profile Image */}
-                {authUser.profilepic ? (
-                  <img
-                    src={authUser.profilepic}
-                    alt="Profile"
-                    className="w-20 h-20 rounded-full object-cover border-4 border-yellow-400 mb-3"
-                  />
-                ) : (
-                  <UserCircle size={72} className="text-yellow-400 mb-3" />
-                )}
-
-                {/* Upload Icon Overlay */}
-                <label className="absolute top-8 right-28 bg-white p-1 rounded-full cursor-pointer border shadow">
-                  <Camera size={18} className="text-yellow-500" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </label>
-
-                {/* Name & Email */}
-
-                {
-                  !profiledetailsbtn ? (<div className="flex flex-col gap-2 relative">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {authUser.fullName}
-                    </h3>
-                    <p className="text-sm text-gray-500">{authUser.email}</p>
-
-                    {/* Bio */}
-                    {authUser.bio && (
-                      <span className="text-xs mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">
-                        {authUser.bio}
-                      </span>
-                    )}
-                    <button
-                      onClick={toggleProfileForm}
-                      title="update profile"
-                      className="absolute -right-10 p-1 bg-white rounded-full shadow  border"><UserPen size={18} className=" text-yellow-500 " /></button>
-                  </div>) : (<form
-                    onSubmit={handleprofiledetailssubmit}
-                    className="flex flex-col w-full max-w-md mx-auto bg-white shadow-md rounded-xl p-6 space-y-4 relative"
-                  >
-                    <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
-                      Update Profile
-                    </h2>
-
-                    {/* Name Field */}
-                    <div className="flex flex-col">
-                      <label className="text-sm font-medium text-gray-600 mb-1">
-                        Your Name
-                      </label>
-                      <input
-                        value={enteredName}
-                        onChange={(e) => setEntredName(e.target.value)}
-                        type="text"
-                        placeholder="Enter your name"
-                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                      />
-                    </div>
-
-                    {/* Bio Field */}
-                    <div className="flex flex-col">
-                      <label className="text-sm font-medium text-gray-600 mb-1">
-                        Your Bio
-                      </label>
-                      <textarea
-                        value={enteredBio}
-                        onChange={(e) => setEnteredBio(e.target.value)}
-                        placeholder="Write a short bio..."
-                        rows="3"
-                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
-                      ></textarea>
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-medium py-2 px-4 rounded-lg transition"
-                    >
-                      Save Changes
-                    </button>
-                    <button
-                      onClick={closeProfileForm}
-                      className="absolute right-0 -top-2"><X className="text-gray-600 hover:text-red-500 transition" /></button>
-                  </form>)
-                }
-
-                <div className="w-full border-t my-4" />
-                <p className="text-xs text-gray-400">
-                  Joined: {new Date(authUser.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-
-              {/* Logout Button */}
-              <div className="px-6 mt-4">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-2 rounded-full transition"
-                >
-                  <LogOut size={18} />
-                  Logout
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex justify-center items-center p-6 text-gray-500 mt-auto h-80 flex-col">
-              <HashLoader color={"#f8e513"} size={40} />
-              <div>Updating Your profile👍</div>
+        {!isUpdatingProfile ? (
+          <>
+            {/* Header */}
+            <div className="p-4 flex justify-between items-center border-b">
+              <h2 className="text-lg font-semibold text-gray-700">My Profile</h2>
+              <button onClick={toggleDrawer}>
+                <X className="text-gray-600 hover:text-red-500 transition" />
+              </button>
             </div>
-          )
-        }
 
+            {/* Profile Info */}
+            <div className="p-6 flex flex-col items-center text-center relative">
+              {/* Profile Image */}
+              {authUser.profilepic ? (
+                <img
+                  src={authUser.profilepic}
+                  alt="Profile"
+                  className="w-20 h-20 rounded-full object-cover border-4 border-yellow-400 mb-3 shadow"
+                />
+              ) : (
+                <UserCircle size={72} className="text-yellow-400 mb-3" />
+              )}
 
+              {/* Camera Upload Icon */}
+              <label className="absolute top-8 right-28 bg-white p-1 rounded-full cursor-pointer border shadow hover:shadow-md transition">
+                <Camera size={18} className="text-yellow-500" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+
+              {/* Followers / Following */}
+              <div className="flex gap-4 mb-4">
+                <div className="flex items-start gap-2 bg-gray-100 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <Users className="w-5 h-5 text-yellow-500" />
+                  <span className="text-gray-700 font-medium">
+                    Followers:{" "}
+                    <span className="font-semibold">{authUser?.follower?.length}</span>
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 bg-gray-100 px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <UserCheck className="w-5 h-5 text-yellow-500" />
+                  <span className="text-gray-700 font-medium">
+                    Following:{" "}
+                    <span className="font-semibold">{authUser?.following?.length}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Name / Bio / Edit */}
+              {!profiledetailsbtn ? (
+                <div className="flex flex-col gap-2 relative items-center">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {authUser.fullName}
+                  </h3>
+                  <p className="text-sm text-gray-500">{authUser.email}</p>
+                  {authUser.bio && (
+                    <span className="text-xs mt-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full">
+                      {authUser.bio}
+                    </span>
+                  )}
+                  <button
+                    onClick={toggleProfileForm}
+                    title="Update profile"
+                    className="absolute -right-10 p-1 bg-white rounded-full shadow border hover:shadow-md transition"
+                  >
+                    <UserPen size={18} className="text-yellow-500" />
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleprofiledetailssubmit}
+                  className="flex flex-col w-full max-w-md mx-auto bg-white shadow-md rounded-xl p-6 space-y-4 relative"
+                >
+                  <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                    Update Profile
+                  </h2>
+
+                  {/* Name */}
+                  <div className="flex flex-col">
+                    <label className="text-sm font-medium text-gray-600 mb-1">
+                      Your Name
+                    </label>
+                    <input
+                      value={enteredName}
+                      onChange={(e) => setEntredName(e.target.value)}
+                      type="text"
+                      placeholder="Enter your name"
+                      className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    />
+                  </div>
+
+                  {/* Bio */}
+                  <div className="flex flex-col">
+                    <label className="text-sm font-medium text-gray-600 mb-1">
+                      Your Bio
+                    </label>
+                    <textarea
+                      value={enteredBio}
+                      onChange={(e) => setEnteredBio(e.target.value)}
+                      placeholder="Write a short bio..."
+                      rows="3"
+                      className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+                    ></textarea>
+                  </div>
+
+                  {/* Save Button */}
+                  <button
+                    type="submit"
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-medium py-2 px-4 rounded-lg transition"
+                  >
+                    Save Changes
+                  </button>
+
+                  {/* Close Form */}
+                  <button
+                    type="button"
+                    onClick={closeProfileForm}
+                    className="absolute right-0 -top-2"
+                  >
+                    <X className="text-gray-600 hover:text-red-500 transition" />
+                  </button>
+                </form>
+              )}
+
+              {/* Join Date */}
+              <div className="w-full border-t my-4" />
+              <p className="text-xs text-gray-400">
+                Joined: {new Date(authUser.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+
+            {/* Logout */}
+            <div className="px-6 mt-4">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-2 rounded-full transition"
+              >
+                <LogOut size={18} />
+                Logout
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex justify-center items-center p-6 text-gray-500 mt-auto h-80 flex-col">
+            <HashLoader color={"#f8e513"} size={40} />
+            <div>Updating Your profile 👍</div>
+          </div>
+        )}
       </div>
+
 
       {/* Background Overlay */}
       {open && (

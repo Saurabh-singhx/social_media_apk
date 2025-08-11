@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { axiosInstance } from "../lib/axios";
+import { contactsStore } from "../store/contactsStore";
 
 const Card = ({ post }) => {
   const [expanded, setExpanded] = useState(false);
@@ -18,9 +19,10 @@ const Card = ({ post }) => {
   const [commentInput, setCommentInput] = useState("");
   const [comments, setComments] = useState(post.comments || []);
   const [showAll, setShowAll] = useState(false);
-
+  const [follow, setFollow] = useState(false)
   const VISIBLE_COUNT = 1;
   const { authUser,createLike,createComment } = authStore();
+  const{isSettingFollow,setFollowing,setUnFollowing,checkFollowing,navRefresh} = contactsStore();
 
   const visibleComments = showAll ? comments : comments.slice(0, VISIBLE_COUNT);
 
@@ -101,7 +103,37 @@ const Card = ({ post }) => {
     getComments();
     getLikes();
     checkLiked();
+
   }, []);
+
+  useEffect(() => {
+      const fetchFollowStatus = async () => {
+        // setLoading(true);
+        try {
+          const check = await checkFollowing(post.postUserId);
+          setFollow(check);
+        } catch (err) {
+          console.error("Error checking follow status:", err);
+        } finally {
+          // setLoading(false);
+        }
+      };
+  
+      fetchFollowStatus();
+    }, [navRefresh]);
+
+
+  const handleFollow = () => {
+  
+    if(!follow){
+      setFollowing(post.postUserId)
+      setFollow(true)
+    }else{
+      setUnFollowing(post.postUserId)
+      setFollow(false)
+    }
+    
+  };
 
   // console.log(post)
 
@@ -128,8 +160,17 @@ const Card = ({ post }) => {
         </div>
 
         {
-          (post.postUserId === authUser._id)?(<span className="font-semibold text-yellow-700 bg-yellow-200 px-2 rounded-full">me</span>):(<button className=" py-1 px-5 bg-yellow-100 rounded-full font-semibold text-yellow-600 border border-amber-900">
-          follow
+          (post.postUserId === authUser._id)?(<span className="font-semibold text-yellow-700 bg-yellow-200 px-2 rounded-full">me</span>)
+          :(<button
+            onClick={ handleFollow}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-sm transition-colors ${
+              follow
+                ? `bg-gray-400 ${isSettingFollow?"cursor-not-allowed":""}`
+                : `bg-yellow-500 hover:bg-yellow-600 ${isSettingFollow?"cursor-not-allowed":""}`
+            }`}
+          >
+            {/* <UserPlus size={16} /> */}
+            {follow ? "Unfollow" : "Follow"}
           </button>)
         }
         

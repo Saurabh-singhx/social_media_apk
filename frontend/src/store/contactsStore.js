@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 export const contactsStore = create((set, get) => ({
     isgettinSuggestions: false,
     isSettingFollow:false,
+    navRefresh:false,
 
     suggestionData: [],
 
@@ -44,7 +45,7 @@ export const contactsStore = create((set, get) => ({
     setFollowing: async(userId)=>{
 
         set({isSettingFollow:true});
-
+        const {authUser} = get();
         try{
             await axiosInstance.post(`/contacts/follow/${userId}`);
            
@@ -54,6 +55,7 @@ export const contactsStore = create((set, get) => ({
             toast.error(error?.response?.data?.message || "Failed to  follow");
         }finally{
             set({isSettingFollow:false});
+            set({navRefresh:(prev)=>{!prev}})
         }
     },
 
@@ -70,6 +72,7 @@ export const contactsStore = create((set, get) => ({
             toast.error(error?.response?.data?.message || "Failed to  unfollow");
         }finally{
             set({isSettingFollow:false});
+            set({navRefresh:(prev)=>{!prev}})
         }
     }
 
