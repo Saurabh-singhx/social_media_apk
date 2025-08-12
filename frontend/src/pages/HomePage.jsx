@@ -6,15 +6,16 @@ import { useEffect } from 'react'
 import { useRef } from 'react'
 import { HashLoader } from "react-spinners";
 import UsersList from '../components/UsersList'
+import toast from 'react-hot-toast'
 
 function HomePage({ showMyPosts }) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [content, setContent] = useState('')
-  const [image, setImage] = useState(null)
-  const { getAllPost, AllPosts, createPost, isPosting, isLoadingMyPosts, myPosts, getMyPost, isLoadingPosts } = authStore();
-  const [numberToSkip, setNumberToSkip] = useState(0)
-  const [imagePreview, setImagePreview] = useState(null)
-  const [followUsers, setFollowUsers] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [content, setContent] = useState('');
+  const [image, setImage] = useState(null);
+  const { getAllPost, AllPosts, createPost, isPosting, isLoadingMyPosts, myPosts, getMyPost, isLoadingPosts, refresh } = authStore();
+  const [numberToSkip, setNumberToSkip] = useState(0);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [followUsers, setFollowUsers] = useState(false);
 
   useEffect(() => {
     if (!showMyPosts) {
@@ -22,40 +23,28 @@ function HomePage({ showMyPosts }) {
     } else {
       getMyPost({ numberToSkip: numberToSkip });
     }
-  }, [numberToSkip, showMyPosts])
+  }, [numberToSkip, showMyPosts, refresh])
 
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
 
     if (!content.trim()) return alert("Post content is required.");
+    if (content.length <= 3) return toast.error("Content should contain more than 3 characters");
 
-    let base64Image = "";
-
+    const formData = new FormData();
+    formData.append("postContent", content);
     if (image) {
-      base64Image = await toBase64(image);
+      formData.append("file", image); // original file object, no base64
     }
 
-    const newPostData = {
-      postContent: content,
-      postImg: base64Image,
-    };
-
-    await createPost(newPostData);
+    await createPost(formData); // axios will set Content-Type: multipart/form-data
 
     setContent("");
     setImage(null);
     setIsModalOpen(false);
   };
 
-  // Utility function
-  const toBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file); // this converts it to base64
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
 
   // console.log(AllPosts)
 
@@ -66,12 +55,13 @@ function HomePage({ showMyPosts }) {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
 
-    if (file) {
-      setImage(file)
-      setImagePreview(URL.createObjectURL(file)); // Create preview URL
-    }
+    setImage(file);
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
   };
+
 
   const handleFollowUsersDiv = () => {
     setFollowUsers(true)
@@ -128,13 +118,13 @@ function HomePage({ showMyPosts }) {
           />
 
           <button>
-            <Search className='text-yellow-300'/>
+            <Search className='text-yellow-300' />
           </button>
         </div>
 
         {/* Users List */}
         <div className="mt-4 px-4 overflow-y-auto flex-1 no-scrollba w-full">
-          <UsersList  followUsers={followUsers}/>
+          <UsersList followUsers={followUsers} />
         </div>
       </div>
 
@@ -229,20 +219,31 @@ function HomePage({ showMyPosts }) {
 
               <label className='flex items-center gap-2 text-sm text-gray-600 cursor-pointer flex-col w-auto overflow-hidden'>
                 <ImagePlus size={18} className='text-yellow-500' />
-                Add Image
+                Add Image or Video
                 <input
                   type='file'
-                  accept='image/*'
+                  accept='*'
                   className='hidden'
                   onChange={handleImageChange}
                 />
-                {
-                  image && (<div className='flex items-start flex-col'>
-                    {/* <FileText size={16} className="text-yellow-400" />
-                    {image.name} */}
-                    <img src={imagePreview} alt="" />
-                  </div>)
-                }
+                {image && (
+                  <div className="mt-2 w-full flex justify-center">
+                    {image.type.startsWith("video/") ? (
+                      <video
+                        src={imagePreview}
+                        controls
+                        className="max-h-64 w-auto rounded-lg object-contain"
+                      />
+                    ) : (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="max-h-64 w-auto rounded-lg object-contain"
+                      />
+                    )}
+                  </div>
+                )}
+
 
 
               </label>

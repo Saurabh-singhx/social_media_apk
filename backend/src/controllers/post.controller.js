@@ -7,25 +7,30 @@ import user from "../models/user.model.js";
 
 
 export const createPost = async (req, res) => {
-
-    const { postImg, postContent } = req.body;
+    const { postContent } = req.body;
     const userId = req.user._id;
     const userName = req.user.fullName;
     const userProfilePic = req.user.profilepic;
 
     try {
         if (!postContent) {
-            return res.status(400).json({ message: "post content can't be empty" });
+            return res.status(400).json({ message: "Post content can't be empty" });
         }
         if (!userId) {
-            return res.status(400).json({ message: "unable to find user while posting" });
+            return res.status(400).json({ message: "Unable to find user while posting" });
         }
 
         let updatedImg = "";
-        if (postImg) {
-            const uploadResponse = await cloudinary.uploader.upload(postImg);
+
+        if (req.file) {
+            // Convert buffer to base64 for Cloudinary
+            const fileBase64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            const uploadResponse = await cloudinary.uploader.upload(fileBase64, {
+                resource_type: req.file.mimetype.startsWith("video") ? "video" : "image"
+            });
             updatedImg = uploadResponse.secure_url;
         }
+
         const newPost = new Post({
             postImg: updatedImg,
             postUserId: userId,
@@ -34,27 +39,15 @@ export const createPost = async (req, res) => {
             postUserImg: userProfilePic,
         });
 
-        if (newPost) {
-            await newPost.save();
+        await newPost.save();
 
-            res.status(201).json({
-                _id: newPost._id,
-                postImg: newPost.postImg,
-                postUserId: newPost.postUserId,
-                postUserName: newPost.postUserName,
-                postContent: newPost.postContent,
-                postUserImg: newPost.postUserImg,
-
-            });
-        } else {
-            return res.status(400).json({ message: "Invalid Post data" })
-        }
+        res.status(201).json(newPost);
     } catch (error) {
-        console.log("error in create Post controller", error.message);
-        return res.status(500).json({ message: "Internal server error" })
+        console.error("Error in createPost controller", error.message);
+        return res.status(500).json({ message: "Internal server error" });
     }
+};
 
-}
 
 export const createLike = async (req, res) => {
 
@@ -81,8 +74,8 @@ export const createLike = async (req, res) => {
 
         const checklike = await Like.find({ likeUserId: userId, likePostId: postId });
 
-        if(checklike.length >=1){
-            return res.status(400).json({message: "Already liked" })
+        if (checklike.length >= 1) {
+            return res.status(400).json({ message: "Already liked" })
         }
         const newLike = new Like({
             likeUserId: userId,
@@ -241,7 +234,7 @@ export const getComments = async (req, res) => {
 
 export const checkLiked = async (req, res) => {
     const { postId } = req.params;
-    const userId  = req.user._id;
+    const userId = req.user._id;
 
     try {
         if (!postId) {
@@ -250,10 +243,10 @@ export const checkLiked = async (req, res) => {
 
         const checklike = await Like.find({ likeUserId: userId, likePostId: postId });
 
-        if(checklike.length >=1){
-            return res.status(200).json({liked:true})
-        }else{
-            return res.status(200).json({liked:false})
+        if (checklike.length >= 1) {
+            return res.status(200).json({ liked: true })
+        } else {
+            return res.status(200).json({ liked: false })
         }
     } catch (error) {
         console.log("error in check like controller", error.message);

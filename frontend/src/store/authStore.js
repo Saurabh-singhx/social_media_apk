@@ -12,6 +12,7 @@ export const authStore = create((set, get) => ({
     isUpdatingProfile: false,
     isLoadingPosts: false,
     isLoadingMyPosts: false,
+    refresh:false,
     
     AllPosts: [],
     myPosts: [],
@@ -104,17 +105,18 @@ export const authStore = create((set, get) => ({
         }
     },
 
-    createPost: async (postData) => {
+    createPost: async (file) => {
         set({ isPosting: true })
         try {
 
-            await axiosInstance.post("/post/createpost", postData)
+            await axiosInstance.post("/post/createpost", file)
 
         } catch (error) {
-            console.error("Error in create comment:", error);
-            toast.error(error?.response?.data?.message || "Failed to comment");
+            console.error("Error in create post:", error);
+            toast.error(error?.response?.data?.message || "Failed to post");
             set({ isPosting: false })
         } finally {
+            set({refresh:(prev)=>!prev})
             set({ isPosting: false })
         }
     },
