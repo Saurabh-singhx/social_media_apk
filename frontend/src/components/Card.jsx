@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { authStore } from "../store/authStore";
 import { Heart, MessageCircle, Share2, User, UserCircle, SendHorizontal } from "lucide-react";
 import { axiosInstance } from "../lib/axios";
@@ -13,6 +13,7 @@ const Card = ({ post }) => {
   const [comments, setComments] = useState(post?.comments || []);
   const [showAll, setShowAll] = useState(false);
   const [follow, setFollow] = useState(false);
+  const videoRef = useRef(null);
 
   const VISIBLE_COUNT = 1;
   const { authUser, createLike, createComment } = authStore();
@@ -80,6 +81,30 @@ const Card = ({ post }) => {
   }, []);
 
   useEffect(() => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          videoElement.play().catch(() => { });
+        } else {
+          videoElement.pause();
+        }
+      },
+      {
+        threshold: 0.5, // Play only if 50% visible
+      }
+    );
+
+    observer.observe(videoElement);
+
+    return () => {
+      observer.unobserve(videoElement);
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchFollowStatus = async () => {
       try {
         const check = await checkFollowing(post.postUserId);
@@ -122,11 +147,10 @@ const Card = ({ post }) => {
           <button
             onClick={handleFollow}
             disabled={isSettingFollow}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-sm transition-colors ${
-              follow
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-sm transition-colors ${follow
                 ? `bg-gray-400 ${isSettingFollow ? "cursor-not-allowed" : ""}`
                 : `bg-yellow-500 hover:bg-yellow-600 ${isSettingFollow ? "cursor-not-allowed" : ""}`
-            }`}
+              }`}
           >
             {follow ? "Unfollow" : "Follow"}
           </button>
@@ -137,7 +161,11 @@ const Card = ({ post }) => {
       {post?.postImg && (
         <div className="w-full max-h-[60vh] flex justify-center bg-white rounded-xl overflow-hidden">
           {post.postImg.includes("/video/upload/") ? (
-            <video loop playsInline src={post.postImg} controls className="max-h-[60vh] w-auto object-contain" />
+            <video ref={videoRef}
+              loop
+              playsInline
+              muted
+              src={post.postImg} controls className="max-h-[60vh] w-auto object-contain" />
           ) : (
             <img src={post.postImg} alt="Post" className="max-h-[60vh] w-auto object-contain" />
           )}
