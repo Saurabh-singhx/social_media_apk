@@ -41,7 +41,7 @@ function App() {
       <Routes>
         <Route path="/" element={authUser ? <><div className='fixed top-0 w-full z-20'><Navbar showMyPosts={showMyPosts} setShowMyPosts={setShowMyPosts} /></div> <HomePage showMyPosts={showMyPosts} /></> : <Navigate to="/loginSignUp" />} />
         <Route path="/loginSignUp" element={!authUser ? <AuthForm /> : <Navigate to="/" />} />
-        <Route path="/post/:id" element={<PostView />} />
+        <Route path="/post/:id" element={!authUser ?<PostView />:<Navigate to="/loginSignUp" />} />
       </Routes>
       
       <Toaster />
