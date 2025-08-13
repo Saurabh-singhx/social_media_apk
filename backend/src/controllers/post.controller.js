@@ -3,7 +3,6 @@ import Comment from "../models/comments.model.js";
 import Like from "../models/likes.model.js";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
-import user from "../models/user.model.js";
 
 
 export const createPost = async (req, res) => {
@@ -186,6 +185,21 @@ export const getMyPost = async (req, res) => {
         })
     } catch (error) {
         console.log("error in myPosts controller", error.message);
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
+export const getSinglePost = async (req,res)=>{
+    const {postId} = req.params;
+    try{
+        const post = await Post.findById(postId);
+
+        return res.status(200).json({
+            post
+        })
+
+    }catch(error){
+        console.log("error in single post controller", error.message);
         return res.status(500).json({ message: "Internal server error" })
     }
 }

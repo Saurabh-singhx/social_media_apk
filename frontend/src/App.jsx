@@ -11,6 +11,7 @@ import { HashLoader } from "react-spinners";
 import UsersList from './components/UsersList'
 import AddUsersCard from './components/addUsersCard'
 import { contactsStore } from './store/contactsStore'
+import PostView from './pages/PostView'
 
 function App() {
   const [showMyPosts, setShowMyPosts] = useState(false); // Toggle state
@@ -28,7 +29,6 @@ function App() {
   if (isCheckingAuth && !authUser) {
     return (
       <div className="flex items-center justify-center h-screen">
-        {/* <Loader className="w-10 h-10 animate-spin text-yellow-500" /> */}
         <HashLoader color={"#f8e513"} size={40} />
       </div>
     )
@@ -41,6 +41,7 @@ function App() {
       <Routes>
         <Route path="/" element={authUser ? <><div className='fixed top-0 w-full z-20'><Navbar showMyPosts={showMyPosts} setShowMyPosts={setShowMyPosts} /></div> <HomePage showMyPosts={showMyPosts} /></> : <Navigate to="/loginSignUp" />} />
         <Route path="/loginSignUp" element={!authUser ? <AuthForm /> : <Navigate to="/" />} />
+        <Route path="/post/:id" element={<PostView />} />
       </Routes>
       
       <Toaster />

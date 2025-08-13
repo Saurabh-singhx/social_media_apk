@@ -104,6 +104,32 @@ const Card = ({ post }) => {
     };
   }, []);
 
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/post/${post._id}`;
+
+    if (navigator.share) {
+      // Native share (Mobile & modern browsers)
+      try {
+        await navigator.share({
+          title: "Check out this post!",
+          text: post?.caption || "Look at this!",
+          url: shareUrl,
+        });
+        console.log("Post shared successfully!");
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      // Fallback: copy link to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert("Link copied to clipboard!");
+      } catch (err) {
+        console.error("Clipboard copy failed:", err);
+      }
+    }
+  };
+
   useEffect(() => {
     const fetchFollowStatus = async () => {
       try {
@@ -195,7 +221,9 @@ const Card = ({ post }) => {
           <MessageCircle size={18} />
           {comments.length} Comment
         </button>
-        <button className="flex items-center gap-1 hover:text-yellow-500 transition">
+        <button 
+        onClick={handleShare}
+        className="flex items-center gap-1 hover:text-yellow-500 transition">
           <Share2 size={18} />
           Share
         </button>
