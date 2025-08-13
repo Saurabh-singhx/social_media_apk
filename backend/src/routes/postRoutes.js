@@ -9,7 +9,7 @@ router.post("/createpost",protectRoute,uploadMiddleware.single('file'),createPos
 router.post("/like/:postId",protectRoute,createLike);
 router.post("/createcomment",protectRoute,createComment);
 router.post("/getposts",protectRoute,getAllPosts);
-router.get("/getSinglePost/:postId",protectRoute,getSinglePost);
+router.get("/getSinglePost/:postId",getSinglePost);
 router.get("/getmyposts",protectRoute,getMyPost);
 router.get("/getlikes/:postId",protectRoute,getPostLike);
 router.get("/getcomments/:postId",protectRoute,getComments);
