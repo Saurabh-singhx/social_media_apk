@@ -5,7 +5,7 @@ import { uploadMiddleware } from "../middleware/multer.middleware.js";
 
 const router = express.Router();
 
-router.post("/createpost",protectRoute,uploadMiddleware.single('file'),createPost);
+router.post("/createpost",protectRoute,uploadMiddleware,createPost);
 router.post("/like/:postId",protectRoute,createLike);
 router.post("/createcomment",protectRoute,createComment);
 router.post("/getposts",protectRoute,getAllPosts);

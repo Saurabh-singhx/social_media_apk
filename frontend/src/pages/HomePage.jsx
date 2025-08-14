@@ -70,7 +70,6 @@ function HomePage({ showMyPosts }) {
   if (isLoadingMyPosts) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
-        {/* <Loader className="w-10 h-10 animate-spin text-yellow-500" /> */}
         <HashLoader color={"#f8e513"} size={40} />
       </div>
     )
@@ -109,18 +108,7 @@ function HomePage({ showMyPosts }) {
           </button>
         </div>
 
-        {/* Search Bar */}
-        <div className="flex items-center bg-gray-100 mx-4 mt-4 px-3 py-2 rounded-full shadow-sm">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="bg-transparent outline-none text-sm text-yellow-700 placeholder-gray-400 w-full font-semibold"
-          />
-
-          <button>
-            <Search className='text-yellow-300' />
-          </button>
-        </div>
+        
 
         {/* Users List */}
         <div className="mt-4 px-4 overflow-y-auto flex-1 no-scrollba w-full">

@@ -7,6 +7,8 @@ export const contactsStore = create((set, get) => ({
     isgettinSuggestions: false,
     isSettingFollow:false,
     navRefresh:false,
+    searchedUser: [],
+    isSearchingUser: false,
 
     suggestionData: [],
 
@@ -74,7 +76,32 @@ export const contactsStore = create((set, get) => ({
             set({isSettingFollow:false});
             set({navRefresh:(prev)=>{!prev}})
         }
-    }
+    },
+
+    searchContact: async (searchedId) => {
+        set({ isSearchingUser: true });
+
+        try {
+            console.log("Searching for user:", searchedId);
+            const res = await axiosInstance.post("/contacts/searchUser", searchedId);
+            const data = res.data.user;
+
+            if (data) {
+                set({ searchedUser: data });
+            } else {
+                toast.error("No user found");
+                set({ searchedUser: [] });
+            }
+
+        } catch (error) {
+            set({ isSearchingUser: false });
+            console.error("Error while searching user:", error);
+            toast.error(error?.response?.data?.message || "Failed to search user");
+        } finally {
+            set({ isSearchingUser: false });
+        }
+    }   
+
 
 
 }))

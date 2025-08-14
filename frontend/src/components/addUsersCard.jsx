@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { User as UserIcon, UserPlus } from "lucide-react";
 import { contactsStore } from "../store/contactsStore";
 import { HashLoader } from "react-spinners";
+import { authStore } from "../store/authStore";
 
 export default function AddUsersCard({ users }) {
   const [follow, setFollow] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { checkFollowing,setFollowing,setUnFollowing,isSettingFollow,navRefresh} = contactsStore();
+  const { checkFollowing, setFollowing, setUnFollowing, isSettingFollow, navRefresh } = contactsStore();
+  const { authUser } = authStore();
 
   useEffect(() => {
     const fetchFollowStatus = async () => {
@@ -25,16 +27,18 @@ export default function AddUsersCard({ users }) {
   }, [navRefresh]);
 
   const handleFollow = (user) => {
-  
-    if(!follow){
+
+    if (!follow) {
       setFollowing(user._id)
       setFollow(true)
-    }else{
+    } else {
       setUnFollowing(user._id)
       setFollow(false)
     }
-    
+
   };
+
+
 
   return (
     <div className="mx-auto w-full">
@@ -65,7 +69,8 @@ export default function AddUsersCard({ users }) {
         {loading ? (
           <HashLoader size={20} color="#facc15" />
         ) : (
-          <button
+
+          authUser._id === users._id ? (<span className="px-3 py-1.5 bg-yellow-300 text-yellow-700 font-semibold text-sm rounded-full flex items-center">You</span>) : (<button
             onClick={() => handleFollow(users)}
             className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-sm transition-colors ${
               follow
@@ -75,9 +80,11 @@ export default function AddUsersCard({ users }) {
           >
             {/* <UserPlus size={16} /> */}
             {follow ? "Unfollow" : "Follow"}
-          </button>
+          </button>)
+
         )}
       </div>
+      
     </div>
   );
 }

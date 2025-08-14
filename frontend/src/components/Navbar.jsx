@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, UserCircle, LogOut, Camera, UserPen, Users, UserCheck } from "lucide-react";
+import { Menu, X, UserCircle, LogOut, Camera, UserPen, Users, UserCheck, MessagesSquare } from "lucide-react";
 import { authStore } from "../store/authStore";
 import { HashLoader } from "react-spinners";
 
@@ -163,28 +163,6 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
 
         {/* Right side icons */}
         <div className="flex items-center gap-4">
-          {/* Search Input (optional) */}
-          <div className="hidden md:flex items-center bg-gray-100 px-3 py-1 rounded-full shadow-sm">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent outline-none text-sm text-gray-600 w-32 placeholder-gray-400"
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-4.35-4.35M5.5 11a5.5 5.5 0 1011 0 5.5 5.5 0 00-11 0z"
-              />
-            </svg>
-          </div>
 
           {/* Notification Bell */}
           <button className="relative">
@@ -198,6 +176,10 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
               <path d="M10 18a2 2 0 002-2H8a2 2 0 002 2z" />
             </svg>
             <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full animate-ping" />
+          </button>
+
+          <button>
+            <MessagesSquare className="text-yellow-400" />
           </button>
         </div>
       </nav>

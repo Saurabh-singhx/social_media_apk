@@ -25,7 +25,8 @@ export const createPost = async (req, res) => {
             // Convert buffer to base64 for Cloudinary
             const fileBase64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
             const uploadResponse = await cloudinary.uploader.upload(fileBase64, {
-                resource_type: req.file.mimetype.startsWith("video") ? "video" : "image"
+                resource_type: req.file.mimetype.startsWith("video") ? "video" : "image",
+                folder: "social_media_app_posts",
             });
             updatedImg = uploadResponse.secure_url;
         }

@@ -18,4 +18,4 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-export const uploadMiddleware = multer({ storage, fileFilter });
+export const uploadMiddleware = multer({ storage, fileFilter }).single('file');

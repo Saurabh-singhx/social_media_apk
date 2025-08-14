@@ -168,7 +168,7 @@ const Card = ({ post }) => {
         </div>
 
         {post?.postUserId === authUser?._id ? (
-          <span className="font-semibold text-yellow-700 bg-yellow-200 px-2 rounded-full">me</span>
+          <span className="px-3 py-1.5 bg-yellow-300 text-yellow-700 font-semibold text-sm rounded-full flex items-center">You</span>
         ) : (
           <button
             onClick={handleFollow}

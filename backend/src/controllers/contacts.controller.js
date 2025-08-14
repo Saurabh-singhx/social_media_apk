@@ -121,7 +121,7 @@ export const getUsersAsSuggestion = async (req,res)=>{
 
     try{
 
-        const suggestions = await User.find().sort({ createdAt: -1 }).limit(5).select("-password -__v -createdAt -updatedAt -bio ").exec();
+        const suggestions = await User.find().sort({ createdAt: -1 }).limit(5).select("-password -__v -createdAt -updatedAt -bio -following -follower").exec();
 
         if(!suggestions){
             res.status(400).json({ message: "error while finding suggestions" });
@@ -132,6 +132,34 @@ export const getUsersAsSuggestion = async (req,res)=>{
         })
     }catch(error){
         console.error("get suggestions", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const searchContact = async (req,res)=>{
+
+    const {searchedId} = req.body;
+    try{
+        if(!searchedId){
+            return res.status(400).json({message:"check your user name or email "});
+        }
+
+        let user = "";
+
+        if(searchedId.includes("@gmail")){
+            user = await User.findOne({email:searchedId}).select("-password -__v -createdAt -updatedAt -bio -following -follower").exec();;
+        }else{
+            user = await User.find({fullName:{ $regex: searchedId, $options: "i" }}).select("-password -__v -createdAt -updatedAt -bio -following -follower").exec();
+        }
+
+        if(!user || user.length === 0){
+            return res.status(400).json({message:"searched User does not exists"})
+        }
+
+        return res.status(200).json({user});
+
+    }catch(error){
+        console.error("search user", error.message);
         res.status(500).json({ message: "Internal server error" });
     }
 }
