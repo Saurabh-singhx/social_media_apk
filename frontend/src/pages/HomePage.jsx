@@ -7,12 +7,13 @@ import { useRef } from 'react'
 import { HashLoader } from "react-spinners";
 import UsersList from '../components/UsersList'
 import toast from 'react-hot-toast'
+import CardSkeleton from '../skeletons/CardSkeleton'
 
 function HomePage({ showMyPosts }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
-  const { getAllPost, AllPosts, createPost, isPosting, myPosts, getMyPost, isLoadingPosts, refresh } = authStore();
+  const { getAllPost, AllPosts, createPost, isPosting, myPosts, getMyPost, isLoadingPosts, refresh,isLoadingMyPosts } = authStore();
   const [numberToSkip, setNumberToSkip] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [followUsers, setFollowUsers] = useState(false);
@@ -74,6 +75,13 @@ function HomePage({ showMyPosts }) {
   //     </div>
   //   )
   // }
+
+  if(isLoadingMyPosts || isLoadingPosts || AllPosts.length <= 0) {
+    return(
+      <CardSkeleton/>
+    )
+  }
+
 
   return (
     <div className='relative min-h-screen pt-10 pb-4'>

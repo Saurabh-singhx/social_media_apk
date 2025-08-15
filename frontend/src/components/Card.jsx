@@ -153,11 +153,11 @@ const Card = ({ post }) => {
     }
   };
 
-  if(isLoadingMyPosts || isLoadingPosts || AllPosts.length <= 0) {
-    return(
-      <CardSkeleton/>
-    )
-  }
+  // if(isLoadingMyPosts || isLoadingPosts || AllPosts.length <= 0) {
+  //   return(
+  //     <CardSkeleton/>
+  //   )
+  // }
 
   return (
     <div className="w-full max-w-screen-md mx-auto bg-slate-100 rounded-2xl shadow-md overflow-hidden mb-6 border border-gray-100">
