@@ -12,7 +12,7 @@ function HomePage({ showMyPosts }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
-  const { getAllPost, AllPosts, createPost, isPosting, isLoadingMyPosts, myPosts, getMyPost, isLoadingPosts, refresh } = authStore();
+  const { getAllPost, AllPosts, createPost, isPosting, myPosts, getMyPost, isLoadingPosts, refresh } = authStore();
   const [numberToSkip, setNumberToSkip] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [followUsers, setFollowUsers] = useState(false);
@@ -67,13 +67,13 @@ function HomePage({ showMyPosts }) {
     setFollowUsers(true)
   }
 
-  if (isLoadingMyPosts) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full">
-        <HashLoader color={"#f8e513"} size={40} />
-      </div>
-    )
-  }
+  // if (isLoadingMyPosts) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen w-full">
+  //       <HashLoader color={"#f8e513"} size={40} />
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className='relative min-h-screen pt-10 pb-4'>
@@ -140,7 +140,7 @@ function HomePage({ showMyPosts }) {
               onClick={handleLoadMore}
               className='bg-yellow-200 px-4 rounded-full text-yellow-600 h-6'>Load More..</button>
           </div>) : (<div
-            className={`flex items-center justify-center h-6 mb-2 ${showMyPosts ? "hidden" : "flex"} ${AllPosts.length <= 0 ? "h-[80vh]" : ""}`}
+            className={`flex items-center justify-center h-6 mb-2 ${showMyPosts ? "hidden" : "flex"} ${AllPosts.length <= 0 ? "hidden" : "flex"}`}
           >
             <HashLoader color="#f8e513" size={30} />
           </div>)

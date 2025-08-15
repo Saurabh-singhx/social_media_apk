@@ -1,6 +1,7 @@
 import cloudinary from "../lib/cloudinary.js";
 import Comment from "../models/comments.model.js";
 import Like from "../models/likes.model.js";
+import Notification from "../models/notifications.model.js";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 
@@ -24,10 +25,18 @@ export const createPost = async (req, res) => {
         if (req.file) {
             // Convert buffer to base64 for Cloudinary
             const fileBase64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+            // Detect if it's a video
+            const isVideo = req.file.mimetype.startsWith("video");
+
+            // Upload to Cloudinary
             const uploadResponse = await cloudinary.uploader.upload(fileBase64, {
-                resource_type: req.file.mimetype.startsWith("video") ? "video" : "image",
+                resource_type: isVideo ? "video" : "image",
                 folder: "social_media_app_posts",
+                // If MKV, convert to MP4
+                format: isVideo ? "mp4" : undefined
             });
+
             updatedImg = uploadResponse.secure_url;
         }
 
@@ -88,6 +97,17 @@ export const createLike = async (req, res) => {
                 likedBy: newLike.likeUserId,
                 PostLiked: newLike.likePostId
             });
+            if (checkPost.postUserId.toString() !== userId.toString()) {
+                const userName = req.user.fullName;
+                new Notification({
+                    notifiyById: userId,
+                    notifiedToId: checkPost.postUserId,
+                    text: `${userName} liked your post`,
+                    postId: postId,
+                    type: "like"
+                })
+                    .save()
+            }
 
         } else {
             return res.status(400).json({ message: "Invalid Like data" })
@@ -142,6 +162,17 @@ export const createComment = async (req, res) => {
                 postId: newComment.commentPostId,
             });
 
+            if (checkPost.postUserId.toString() !== userId.toString()) {
+                new Notification({
+                    notifiyById: userId,
+                    notifiedToId: checkPost.postUserId,
+                    text: `${userName} commented on your post`,
+                    postId: commentPostId,
+                    type: "comment"
+                })
+                    .save()
+            }
+
         } else {
             return res.status(400).json({ message: "Invalid Comment data" })
         }
@@ -190,16 +221,16 @@ export const getMyPost = async (req, res) => {
     }
 }
 
-export const getSinglePost = async (req,res)=>{
-    const {postId} = req.params;
-    try{
+export const getSinglePost = async (req, res) => {
+    const { postId } = req.params;
+    try {
         const post = await Post.findById(postId);
 
         return res.status(200).json({
             post
         })
 
-    }catch(error){
+    } catch (error) {
         console.log("error in single post controller", error.message);
         return res.status(500).json({ message: "Internal server error" })
     }

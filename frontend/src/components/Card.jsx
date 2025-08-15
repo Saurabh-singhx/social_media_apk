@@ -4,6 +4,7 @@ import { Heart, MessageCircle, Share2, User, UserCircle, SendHorizontal } from "
 import { axiosInstance } from "../lib/axios";
 import { contactsStore } from "../store/contactsStore";
 import toast from "react-hot-toast";
+import CardSkeleton from "../skeletons/CardSkeleton";
 
 const Card = ({ post }) => {
   const [expanded, setExpanded] = useState(false);
@@ -16,7 +17,7 @@ const Card = ({ post }) => {
   const videoRef = useRef(null);
 
   const VISIBLE_COUNT = 1;
-  const { authUser, createLike, createComment } = authStore();
+  const { authUser, createLike, createComment,isLoadingMyPosts,isLoadingPosts,AllPosts } = authStore();
   const { isSettingFollow, setFollowing, setUnFollowing, checkFollowing, navRefresh } = contactsStore();
 
   const visibleComments = showAll ? comments : comments.slice(0, VISIBLE_COUNT);
@@ -151,6 +152,12 @@ const Card = ({ post }) => {
       setFollow(false);
     }
   };
+
+  if(isLoadingMyPosts || isLoadingPosts || AllPosts.length <= 0) {
+    return(
+      <CardSkeleton/>
+    )
+  }
 
   return (
     <div className="w-full max-w-screen-md mx-auto bg-slate-100 rounded-2xl shadow-md overflow-hidden mb-6 border border-gray-100">

@@ -1,9 +1,10 @@
+import Notification from "../models/notifications.model.js";
 import User from "../models/user.model.js";
 
 export const follow = async (req, res) => {
 
     const userId = req.user.id;
-    const {otherUserId } = req.params;
+    const { otherUserId } = req.params;
 
     try {
 
@@ -28,8 +29,8 @@ export const follow = async (req, res) => {
             { new: true }
         );
 
-        if(!updatedUser){
-             return res.status(400).json({ message: "error while following" });
+        if (!updatedUser) {
+            return res.status(400).json({ message: "error while following" });
         }
 
         const followingUser = await User.findByIdAndUpdate(
@@ -38,15 +39,27 @@ export const follow = async (req, res) => {
             { new: true }
         );
 
-        if(!followingUser){
-             return res.status(400).json({ message: "error while following" });
+        if (!followingUser) {
+            return res.status(400).json({ message: "error while following" });
         }
 
+
+
         const followingUserData = await User.findById(followingUser._id).select("-password -__v -_id -createdAt -updatedAt");
+
+
         res.status(200).json({
             message: "follow successfull",
             follower: followingUserData.follower,
         });
+
+        new Notification({
+            notifiyById: userId,
+            notifiedToId: otherUserId,
+            text: `${folllowing.fullName} started following you`,
+            type: "follow"
+        }).save()
+
 
     } catch (error) {
         console.error("Error in addContacts controller:", error.message);
@@ -54,111 +67,111 @@ export const follow = async (req, res) => {
     }
 }
 
-export const unfollow = async(req,res)=>{
+export const unfollow = async (req, res) => {
 
     const userId = req.user.id;
-    const {otherUserId} = req.params;
+    const { otherUserId } = req.params;
 
-    try{
+    try {
 
-        if(!otherUserId){
-            return res.status(400).json({message:"user id required for unfollow"})
+        if (!otherUserId) {
+            return res.status(400).json({ message: "user id required for unfollow" })
         }
 
-        const unfollowing = await User.findById(otherUserId );
+        const unfollowing = await User.findById(otherUserId);
 
         if (!unfollowing) {
             return res.status(404).json({ message: "unfollowing user not found" });
         }
 
         await User.updateOne(
-            {_id:userId},
-            {$pull:{following:unfollowing._id}}
+            { _id: userId },
+            { $pull: { following: unfollowing._id } }
         );
 
         await User.updateOne(
-            {_id:unfollowing._id},
-            {$pull:{follower:userId}}
+            { _id: unfollowing._id },
+            { $pull: { follower: userId } }
         );
 
-        return res.status(200).json({message:"successfully unfollowed"})
+        return res.status(200).json({ message: "successfully unfollowed" })
 
 
-    }catch(error){
+    } catch (error) {
         console.error("Error in unfollow controller:", error.message);
         res.status(500).json({ message: "Internal server error" });
     }
 }
 
-export const checkFollowing = async(req,res)=>{
+export const checkFollowing = async (req, res) => {
 
     const userId = req.user.id;
-    const {otherUserId} = req.params;
+    const { otherUserId } = req.params;
 
-    try{
-        if(!otherUserId){
-            return res.status(400).json({messsage:"otheruserId required"})
+    try {
+        if (!otherUserId) {
+            return res.status(400).json({ messsage: "otheruserId required" })
         }
 
         const followingUser = await User.findById(otherUserId)
         const exists = await User.exists({
-            _id:userId,
-            following:followingUser._id
+            _id: userId,
+            following: followingUser._id
         })
 
-        if(exists){
-            return res.status(200).json({following:true})
+        if (exists) {
+            return res.status(200).json({ following: true })
         }
 
-        return res.status(200).json({following:false})
-    }catch(error){
+        return res.status(200).json({ following: false })
+    } catch (error) {
         console.error("check follow:", error.message);
         res.status(500).json({ message: "Internal server error" });
     }
 }
 
-export const getUsersAsSuggestion = async (req,res)=>{
+export const getUsersAsSuggestion = async (req, res) => {
 
-    try{
+    try {
 
         const suggestions = await User.find().sort({ createdAt: -1 }).limit(5).select("-password -__v -createdAt -updatedAt -bio -following -follower").exec();
 
-        if(!suggestions){
+        if (!suggestions) {
             res.status(400).json({ message: "error while finding suggestions" });
         }
 
         res.status(200).json({
             suggestions
         })
-    }catch(error){
+    } catch (error) {
         console.error("get suggestions", error.message);
         res.status(500).json({ message: "Internal server error" });
     }
 }
 
-export const searchContact = async (req,res)=>{
+export const searchContact = async (req, res) => {
 
-    const {searchedId} = req.body;
-    try{
-        if(!searchedId){
-            return res.status(400).json({message:"check your user name or email "});
+    const { searchedId } = req.body;
+    try {
+        if (!searchedId) {
+            return res.status(400).json({ message: "check your user name or email " });
         }
 
         let user = "";
 
-        if(searchedId.includes("@gmail")){
-            user = await User.findOne({email:searchedId}).select("-password -__v -createdAt -updatedAt -bio -following -follower").exec();;
-        }else{
-            user = await User.find({fullName:{ $regex: searchedId, $options: "i" }}).select("-password -__v -createdAt -updatedAt -bio -following -follower").exec();
+        if (searchedId.includes("@gmail")) {
+            user = await User.findOne({ email: searchedId }).select("-password -__v -createdAt -updatedAt -bio -following -follower").exec();;
+        } else {
+            user = await User.find({ fullName: { $regex: searchedId, $options: "i" } }).select("-password -__v -createdAt -updatedAt -bio -following -follower").exec();
         }
 
-        if(!user || user.length === 0){
-            return res.status(400).json({message:"searched User does not exists"})
+        if (!user || user.length === 0) {
+            return res.status(400).json({ message: "searched User does not exists" })
         }
 
-        return res.status(200).json({user});
+        return res.status(200).json({ user });
 
-    }catch(error){
+    } catch (error) {
         console.error("search user", error.message);
         res.status(500).json({ message: "Internal server error" });
     }

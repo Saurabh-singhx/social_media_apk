@@ -87,7 +87,6 @@ export const authStore = create((set, get) => ({
             set({ AllPosts: [...AllPosts, ...uniqueNewPosts] });
 
         } catch (error) {
-            set({ isLoadingPosts: false });
             console.error("Error fetching posts:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch posts");
         } finally {
