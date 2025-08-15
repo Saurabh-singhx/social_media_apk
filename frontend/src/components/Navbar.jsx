@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Menu, X, UserCircle, LogOut, Camera, UserPen, Users, UserCheck, MessagesSquare } from "lucide-react";
 import { authStore } from "../store/authStore";
 import { HashLoader } from "react-spinners";
+import { useNavigate, useLocation } from "react-router-dom";
+import { contactsStore } from "../store/contactsStore";
 
 const Navbar = ({ showMyPosts, setShowMyPosts }) => {
   const [open, setOpen] = useState(false);
@@ -9,8 +11,11 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
   const [enteredName, setEntredName] = useState("");
   const [profiledetailsbtn, setProfiledetailsbtn] = useState(false)
 
-
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isOnNotificationsPage = location.pathname === "/notifications";
   const { logout, authUser, updateProfile, isUpdatingProfile, updateProfileDetails } = authStore();
+  const { getNotifications } = contactsStore();
 
   const toggleDrawer = () => {
     setOpen(!open)
@@ -18,8 +23,10 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
   };
   const toggleProfileForm = () => setProfiledetailsbtn(true);
   const closeProfileForm = () => setProfiledetailsbtn(false);
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+
+    await logout();
+    navigate("/loginSignUp");
   };
 
   useEffect(() => {
@@ -85,77 +92,89 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
 
 
         {/* Desktop & Tablet View */}
-        <div className="hidden sm:flex items-center gap-3 bg-gray-100 px-2 py-1 rounded-full">
-          {/* Label - All Posts */}
-          <span
-            className={`text-sm font-medium px-3 py-1 rounded-full transition ${!showMyPosts
-              ? "bg-yellow-400 text-white shadow"
-              : "text-gray-500"
-              }`}
-          >
-            All Posts
-          </span>
 
-          {/* Toggle Switch */}
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showMyPosts}
-              onChange={handlePostViewToggle}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-yellow-400 transition-colors duration-300"></div>
-            <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 peer-checked:translate-x-full"></div>
-          </label>
+        {
+          isOnNotificationsPage ? (<div className="text-lg font-semibold text-gray-700 tracking-wide px-4 py-2 hover:text-yellow-500 transition">
+            Your Notifications
+          </div>
 
-          {/* Label - My Posts */}
-          <span
-            className={`text-sm font-medium px-3 py-1 rounded-full transition ${showMyPosts
-              ? "bg-yellow-400 text-white shadow"
-              : "text-gray-500"
-              }`}
-          >
-            My Posts
-          </span>
-        </div>
+          ) : (<div className="hidden sm:flex items-center gap-3 bg-gray-100 px-2 py-1 rounded-full">
+            {/* Label - All Posts */}
+            <span
+              className={`text-sm font-medium px-3 py-1 rounded-full transition ${!showMyPosts
+                ? "bg-yellow-400 text-white shadow"
+                : "text-gray-500"
+                }`}
+            >
+              All Posts
+            </span>
+
+            {/* Toggle Switch */}
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showMyPosts}
+                onChange={handlePostViewToggle}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-yellow-400 transition-colors duration-300"></div>
+              <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 peer-checked:translate-x-full"></div>
+            </label>
+
+            {/* Label - My Posts */}
+            <span
+              className={`text-sm font-medium px-3 py-1 rounded-full transition ${showMyPosts
+                ? "bg-yellow-400 text-white shadow"
+                : "text-gray-500"
+                }`}
+            >
+              My Posts
+            </span>
+          </div>)
+        }
 
         {/* Mobile View - Styled Dropdown */}
-        <div className="sm:hidden relative">
-          <select
-            value={showMyPosts ? "my" : "all"}
-            onChange={(e) => handlePostViewToggle(e.target.value === "my")}
-            className="
+        {
+          isOnNotificationsPage ? (<div className="hidden text-lg font-semibold text-gray-700 px-4 py-2 border-b-2 border-transparent hover:border-yellow-500 hover:text-yellow-500 transition">
+            Your Notifications
+          </div>
+          ) : (<div className="sm:hidden relative">
+            <select
+              value={showMyPosts ? "my" : "all"}
+              onChange={(e) => handlePostViewToggle(e.target.value === "my")}
+              className="
                       appearance-none bg-white border border-gray-300
                      text-gray-700 text-sm font-medium
                       rounded-full px-4 py-2 pr-8
                       shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400
                       transition-all duration-200"
-          >
-            <option
-              value="all"
-              className="bg-white text-gray-700 font-medium hover:bg-yellow-100 focus:bg-yellow-200"
             >
-              All Posts
-            </option>
-            <option
-              value="my"
-              className="bg-white text-gray-700 font-medium hover:bg-yellow-100 focus:bg-yellow-200"
-            >
-              My Posts
-            </option>
-          </select>
+              <option
+                value="all"
+                className="bg-white text-gray-700 font-medium hover:bg-yellow-100 focus:bg-yellow-200"
+              >
+                All Posts
+              </option>
+              <option
+                value="my"
+                className="bg-white text-gray-700 font-medium hover:bg-yellow-100 focus:bg-yellow-200"
+              >
+                My Posts
+              </option>
+            </select>
 
-          {/* Dropdown arrow icon */}
-          <svg
-            className="w-4 h-4 text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+            {/* Dropdown arrow icon */}
+            <svg
+              className="w-4 h-4 text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>)
+        }
 
 
 
@@ -165,18 +184,27 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
         <div className="flex items-center gap-4">
 
           {/* Notification Bell */}
-          <button className="relative">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-gray-600 hover:text-yellow-500 transition"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
-              <path d="M10 18a2 2 0 002-2H8a2 2 0 002 2z" />
-            </svg>
-            <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full animate-ping" />
-          </button>
+          {
+            !isOnNotificationsPage && (
+              <button
+                onClick={() => {
+                  navigate("/notifications");
+                  getNotifications();
+                }}
+                className="relative">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-600 hover:text-yellow-500 transition"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
+                  <path d="M10 18a2 2 0 002-2H8a2 2 0 002 2z" />
+                </svg>
+                <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full animate-ping" />
+              </button>
+            )
+          }
 
           <button>
             <MessagesSquare className="text-yellow-400" />

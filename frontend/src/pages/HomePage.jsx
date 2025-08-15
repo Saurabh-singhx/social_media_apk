@@ -13,7 +13,7 @@ function HomePage({ showMyPosts }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
-  const { getAllPost, AllPosts, createPost, isPosting, myPosts, getMyPost, isLoadingPosts, refresh,isLoadingMyPosts } = authStore();
+  const { getAllPost, AllPosts, createPost, isPosting, myPosts, getMyPost, isLoadingPosts, refresh, isLoadingMyPosts } = authStore();
   const [numberToSkip, setNumberToSkip] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [followUsers, setFollowUsers] = useState(false);
@@ -68,17 +68,10 @@ function HomePage({ showMyPosts }) {
     setFollowUsers(true)
   }
 
-  // if (isLoadingMyPosts) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen w-full">
-  //       <HashLoader color={"#f8e513"} size={40} />
-  //     </div>
-  //   )
-  // }
 
-  if(isLoadingMyPosts || AllPosts.length <= 0) {
-    return(
-      <CardSkeleton/>
+  if (isLoadingMyPosts || AllPosts.length <= 0) {
+    return (
+      <CardSkeleton />
     )
   }
 
@@ -116,7 +109,7 @@ function HomePage({ showMyPosts }) {
           </button>
         </div>
 
-        
+
 
         {/* Users List */}
         <div className="mt-4 px-4 overflow-y-auto flex-1 no-scrollba w-full">
@@ -217,11 +210,12 @@ function HomePage({ showMyPosts }) {
                 <ImagePlus size={18} className='text-yellow-500' />
                 Add Image or Video
                 <input
-                  type='file'
-                  accept='*'
-                  className='hidden'
+                  type="file"
+                  accept="image/*,video/*"
+                  className="hidden"
                   onChange={handleImageChange}
                 />
+
                 {image && (
                   <div className="mt-2 w-full flex justify-center">
                     {image.type.startsWith("video/") ? (

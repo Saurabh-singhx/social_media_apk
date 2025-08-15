@@ -4,6 +4,7 @@ import { generateToken } from "../lib/utils.js";
 import Otp from "../models/otp.model.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt"
+import { follow } from "./contacts.controller.js";
 
 
 
@@ -141,7 +142,9 @@ export const updateProfile = async (req, res) => {
             email: updateUser.email,
             profilepic: updateUser.profilepic,
             bio: updateUser.bio,
-            createdAt: updateUser.createdAt
+            createdAt: updateUser.createdAt,
+            following: updateUser.following,
+            follower: updateUser.follower
         });
     } catch (error) {
         console.log("error in updating profile", error.message);
@@ -175,7 +178,9 @@ export const updateProfileDetails = async (req, res) => {
             email: updateUser.email,
             profilepic: updateUser.profilepic,
             bio: updateUser.bio,
-            createdAt: updateUser.createdAt
+            createdAt: updateUser.createdAt,
+            following: updateUser.following,
+            follower: updateUser.follower
         });
     } catch (error) {
         console.log("Error in updating profile details:", error.message);

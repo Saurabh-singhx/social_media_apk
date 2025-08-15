@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { getNotifications } from "../../../backend/src/controllers/contacts.controller";
 
 
 export const contactsStore = create((set, get) => ({
@@ -9,6 +10,8 @@ export const contactsStore = create((set, get) => ({
     navRefresh:false,
     searchedUser: [],
     isSearchingUser: false,
+    notifications: [],
+    isLoadingNotifications: false,
 
     suggestionData: [],
 
@@ -100,8 +103,19 @@ export const contactsStore = create((set, get) => ({
         } finally {
             set({ isSearchingUser: false });
         }
-    }   
-
-
+    },
+    
+    getNotifications: async () => {
+        set({ isLoadingNotifications: true });
+        try {
+            const res = await axiosInstance.get("/contacts/notifications");
+            set({ notifications: res.data.notifications });
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+            toast.error(error?.response?.data?.message || "Failed to fetch notifications");
+        }finally{
+            set({ isLoadingNotifications: false });
+        }  
+    }
 
 }))
