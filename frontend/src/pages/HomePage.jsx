@@ -76,7 +76,7 @@ function HomePage({ showMyPosts }) {
   //   )
   // }
 
-  if(isLoadingMyPosts || isLoadingPosts || AllPosts.length <= 0) {
+  if(isLoadingMyPosts || AllPosts.length <= 0) {
     return(
       <CardSkeleton/>
     )
@@ -148,7 +148,7 @@ function HomePage({ showMyPosts }) {
               onClick={handleLoadMore}
               className='bg-yellow-200 px-4 rounded-full text-yellow-600 h-6'>Load More..</button>
           </div>) : (<div
-            className={`flex items-center justify-center h-6 mb-2 ${showMyPosts ? "hidden" : "flex"} ${AllPosts.length <= 0 ? "hidden" : "flex"}`}
+            className={`flex items-center justify-center h-6 mb-2 ${showMyPosts ? "hidden" : "flex"}`}
           >
             <HashLoader color="#f8e513" size={30} />
           </div>)
