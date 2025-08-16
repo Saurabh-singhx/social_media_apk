@@ -7,16 +7,22 @@ function Notifications() {
   const location = useLocation();
 
   const isOnNotificationsPage = location.pathname === "/notifications";
-    const { getNotifications } = contactsStore();
-    useEffect(() => {
-      if(isOnNotificationsPage) {
-        getNotifications();
-      }
-    }, [])
+  const { getNotifications, notifications, unsubscribeFromNotifications, subscribeToNotifications } = contactsStore();
+  useEffect(() => {
+    if (isOnNotificationsPage) {
+      getNotifications();
+      subscribeToNotifications();
+    }
     
+    return () => {
+      unsubscribeFromNotifications();
+    }
+  }, [getNotifications, isOnNotificationsPage, subscribeToNotifications, unsubscribeFromNotifications]);
+
+
   return (
     <div className='p-2'>
-        <NotificationCard/>
+      <NotificationCard />
     </div>
   )
 }

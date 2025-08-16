@@ -176,10 +176,6 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
           </div>)
         }
 
-
-
-
-
         {/* Right side icons */}
         <div className="flex items-center gap-4">
 
@@ -189,7 +185,6 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
               <button
                 onClick={() => {
                   navigate("/notifications");
-                  getNotifications();
                 }}
                 className="relative">
                 <svg

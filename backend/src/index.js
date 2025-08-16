@@ -10,9 +10,9 @@ import path from "path";
 import passport from "./lib/passport.js";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import { server, app } from "./lib/socket.js";
 
 dotenv.config();
-const app = express();
 
 const PORT = process.env.PORT || 5005;
 const __dirname = path.resolve();
@@ -25,9 +25,6 @@ if (process.env.NODE_ENV === "production") {
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
-
-// Ensure you have a session secret in env for production
-const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-me";
 
 
 app.use(
@@ -66,7 +63,7 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
-app.use("/api/contacts",contactsRoutes);
+app.use("/api/contacts", contactsRoutes);
 
 
 // Serve frontend in production
@@ -77,7 +74,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("Server is running on port " + PORT);
   ConnectDB();
 });

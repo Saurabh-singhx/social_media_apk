@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
+
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 
 export const authStore = create((set, get) => ({
 
@@ -13,6 +16,8 @@ export const authStore = create((set, get) => ({
     isLoadingPosts: false,
     isLoadingMyPosts: false,
     refresh:false,
+    socket: null,
+    onlineUsers: [],
     
     AllPosts: [],
     myPosts: [],
@@ -25,6 +30,11 @@ export const authStore = create((set, get) => ({
         try {
             const res = await axiosInstance.get("/auth/check");
             set({ authUser: res.data });
+            if (res.data) {
+                get().connectSocket(); // Connect socket if user is authenticated
+            } else {
+                get().disconnectSocket(); // Disconnect socket if no user
+            }
         } catch (error) {
             // toast.error(error.response?.data?.message)
             console.log("Error in checkAuth:", error);
@@ -40,6 +50,7 @@ export const authStore = create((set, get) => ({
             const res = await axiosInstance.post("/auth/signup", formdata);
             set({ authUser: res.data });
             toast.success("Account created successfully");
+            get().connectSocket(); // Connect socket after signup
         } catch (error) {
             toast.error(error.response.data.message);
         } finally {
@@ -52,6 +63,7 @@ export const authStore = create((set, get) => ({
         try {
             const res = await axiosInstance.post("/auth/login", formdata);
             set({ authUser: res.data });
+            get().connectSocket(); // Connect socket after login
             toast.success("Logged in successfully");
 
         } catch (error) {
@@ -85,12 +97,18 @@ export const authStore = create((set, get) => ({
             const existingIds = new Set(AllPosts.map(post => post._id));
             const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post._id));
 
-            set({ AllPosts: [...AllPosts, ...uniqueNewPosts] });
+            if(numberToSkip.numberToSkip === 0){
+                set({ AllPosts: newPosts });
+            }
+            else{
+                set({ AllPosts: [...AllPosts, ...uniqueNewPosts] });
+            }
 
         } catch (error) {
             console.error("Error fetching posts:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch posts");
         } finally {
+            
             set({ isLoadingPosts: false });
         }
     },
@@ -108,15 +126,13 @@ export const authStore = create((set, get) => ({
     createPost: async (file) => {
         set({ isPosting: true })
         try {
-
             await axiosInstance.post("/post/createpost", file)
 
         } catch (error) {
             console.error("Error in create post:", error);
             toast.error(error?.response?.data?.message || "Failed to post");
-            set({ isPosting: false })
         } finally {
-            set({refresh:(prev)=>!prev})
+            set({refresh:(prev)=>!prev});
             set({ isPosting: false })
         }
     },
@@ -196,8 +212,27 @@ export const authStore = create((set, get) => ({
             console.error("Error fetching myposts:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch posts");
         }
-    }
+    },
 
+    connectSocket: () => {
+    const { authUser } = get();
+    if (!authUser || get().socket?.connected) return;
 
+    const socket = io(BASE_URL, {
+      query: {
+        userId: authUser._id,
+      },
+    });
+    socket.connect();
+
+    set({ socket: socket });
+
+    socket.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds });
+    });
+  },
+  disconnectSocket: () => {
+    if (get().socket?.connected) get().socket.disconnect();
+  },
 
 }))

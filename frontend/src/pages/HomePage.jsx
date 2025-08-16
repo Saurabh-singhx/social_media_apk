@@ -24,7 +24,7 @@ function HomePage({ showMyPosts }) {
     } else {
       getMyPost({ numberToSkip: numberToSkip });
     }
-  }, [numberToSkip, showMyPosts, refresh])
+  }, [numberToSkip, showMyPosts,refresh])
 
 
   const handlePostSubmit = async (e) => {
@@ -36,10 +36,10 @@ function HomePage({ showMyPosts }) {
     const formData = new FormData();
     formData.append("postContent", content);
     if (image) {
-      formData.append("file", image); // original file object, no base64
+      formData.append("file", image);
     }
 
-    await createPost(formData); // axios will set Content-Type: multipart/form-data
+    await createPost(formData); 
 
     setContent("");
     setImage(null);

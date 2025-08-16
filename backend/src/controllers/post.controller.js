@@ -1,4 +1,5 @@
 import cloudinary from "../lib/cloudinary.js";
+import { getRecieverSocketId, io } from "../lib/socket.js";
 import Comment from "../models/comments.model.js";
 import Like from "../models/likes.model.js";
 import Notification from "../models/notifications.model.js";
@@ -86,7 +87,7 @@ export const createLike = async (req, res) => {
         if (checklike.length >= 1) {
             return res.status(400).json({ message: "Already liked" })
         }
-        const newLike = new Like({
+        const newLike =  new Like({
             likeUserId: userId,
             likePostId: postId,
         });
@@ -99,14 +100,21 @@ export const createLike = async (req, res) => {
             });
             if (checkPost.postUserId.toString() !== userId.toString()) {
                 const userName = req.user.fullName;
-                new Notification({
+                const newNotification = await new Notification({
                     notifiyById: userId,
                     notifiedToId: checkPost.postUserId,
                     text: `${userName} liked your post`,
                     postId: postId,
                     type: "like"
-                })
-                    .save()
+                }).save()
+
+                if(newNotification) {
+                    const recieverSocketId = getRecieverSocketId(checkPost.postUserId);
+
+                    if (recieverSocketId) {
+                        io.to(recieverSocketId).emit("newNotification", newNotification);
+                    }
+                }
             }
 
         } else {
@@ -163,14 +171,23 @@ export const createComment = async (req, res) => {
             });
 
             if (checkPost.postUserId.toString() !== userId.toString()) {
-                new Notification({
+                const newNotification = await new Notification({
                     notifiyById: userId,
                     notifiedToId: checkPost.postUserId,
                     text: `${userName} commented on your post`,
                     postId: commentPostId,
                     type: "comment"
-                })
-                    .save()
+                }).save()
+
+
+                if(newNotification) {
+                    const recieverSocketId = getRecieverSocketId(checkPost.postUserId);
+
+                    if (recieverSocketId) {
+                        io.to(recieverSocketId).emit("newNotification", newNotification);
+                    }
+                }
+
             }
 
         } else {
@@ -265,7 +282,7 @@ export const getComments = async (req, res) => {
             return res.status(401).json({ message: "postId is required" });
         }
 
-        const comments = await Comment.find({ commentPostId: postId });
+        const comments = await Comment.find({ commentPostId: postId }).sort({ createdAt: -1 }).exec();
 
         res.status(200).json({
             comments

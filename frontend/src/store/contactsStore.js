@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
-import { getNotifications } from "../../../backend/src/controllers/contacts.controller";
+import { io } from "socket.io-client";
+import { authStore } from "./authStore";
 
 
 export const contactsStore = create((set, get) => ({
     isgettinSuggestions: false,
-    isSettingFollow:false,
-    navRefresh:false,
+    isSettingFollow: false,
+    navRefresh: false,
     searchedUser: [],
     isSearchingUser: false,
     notifications: [],
@@ -40,44 +41,44 @@ export const contactsStore = create((set, get) => ({
             const res = await axiosInstance.get(`/contacts/checkfollow/${userId}`)
             const data = res.data.following;
             return (data);
-            
+
         } catch (error) {
             console.error("Error while checking following:", error);
             toast.error(error?.response?.data?.message || "Failed to check following");
         }
     },
 
-    setFollowing: async(userId)=>{
+    setFollowing: async (userId) => {
 
-        set({isSettingFollow:true});
-        const {authUser} = get();
-        try{
+        set({ isSettingFollow: true });
+        const { authUser } = get();
+        try {
             await axiosInstance.post(`/contacts/follow/${userId}`);
-           
-        }catch(error){
-            set({isSettingFollow:false});
+
+        } catch (error) {
+            set({ isSettingFollow: false });
             console.error("Error while following:", error);
             toast.error(error?.response?.data?.message || "Failed to  follow");
-        }finally{
-            set({isSettingFollow:false});
-            set({navRefresh:(prev)=>{!prev}})
+        } finally {
+            set({ isSettingFollow: false });
+            set({ navRefresh: (prev) => { !prev } })
         }
     },
 
-    setUnFollowing: async(userId)=>{
+    setUnFollowing: async (userId) => {
 
-        set({isSettingFollow:true});
+        set({ isSettingFollow: true });
 
-        try{
+        try {
             await axiosInstance.delete(`/contacts/unfollow/${userId}`);
-            
-        }catch(error){
-            set({isSettingFollow:false});
+
+        } catch (error) {
+            set({ isSettingFollow: false });
             console.error("Error while unfollowing:", error);
             toast.error(error?.response?.data?.message || "Failed to  unfollow");
-        }finally{
-            set({isSettingFollow:false});
-            set({navRefresh:(prev)=>{!prev}})
+        } finally {
+            set({ isSettingFollow: false });
+            set({ navRefresh: (prev) => { !prev } })
         }
     },
 
@@ -104,7 +105,7 @@ export const contactsStore = create((set, get) => ({
             set({ isSearchingUser: false });
         }
     },
-    
+
     getNotifications: async () => {
         set({ isLoadingNotifications: true });
         try {
@@ -113,9 +114,25 @@ export const contactsStore = create((set, get) => ({
         } catch (error) {
             console.error("Error fetching notifications:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch notifications");
-        }finally{
+        } finally {
             set({ isLoadingNotifications: false });
-        }  
-    }
+        }
+    },
+
+    subscribeToNotifications: () => {
+        const socket = authStore.getState().socket;
+        socket.off("newNotification");
+        socket.on("newNotification", (newNotification) => {
+            
+            set({
+                notifications: [newNotification,...get().notifications],
+            });
+        });
+    },
+
+    unsubscribeFromNotifications: () => {
+        const socket = authStore.getState().socket;
+        socket.off("newNotification");
+    },
 
 }))

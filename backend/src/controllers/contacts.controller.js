@@ -1,3 +1,4 @@
+import { getRecieverSocketId, io } from "../lib/socket.js";
 import Notification from "../models/notifications.model.js";
 import User from "../models/user.model.js";
 
@@ -53,13 +54,20 @@ export const follow = async (req, res) => {
             follower: followingUserData.follower,
         });
 
-        new Notification({
+        const newNotification = await new Notification({
             notifiyById: userId,
             notifiedToId: otherUserId,
             text: `${folllowing.fullName} started following you`,
             type: "follow"
         }).save()
 
+        if(newNotification) {
+            const recieverSocketId = getRecieverSocketId(otherUserId);
+
+            if (recieverSocketId) {
+                io.to(recieverSocketId).emit("newNotification", newNotification);
+            }
+        }
 
     } catch (error) {
         console.error("Error in addContacts controller:", error.message);
@@ -177,24 +185,24 @@ export const searchContact = async (req, res) => {
     }
 }
 
-export const getNotifications = async (req,res)=>{
+export const getNotifications = async (req, res) => {
     const userId = req.user.id;
-    
+
     try {
         const notifications = await Notification.find({ notifiedToId: userId })
-        .sort({ createdAt: -1 })
-        .populate("notifiyById", "-password -__v -createdAt -updatedAt -bio -following -follower")
-        .exec();
-    
+            .sort({ createdAt: -1 })
+            .populate("notifiyById", "-password -__v -createdAt -updatedAt -bio -following -follower")
+            .exec();
+
         if (!notifications) {
-        return res.status(404).json({ message: "No notifications found" });
+            return res.status(404).json({ message: "No notifications found" });
         }
-    
+
         res.status(200).json({ notifications });
     } catch (error) {
         console.error("Error fetching notifications:", error.message);
         res.status(500).json({ message: "Internal server error" });
     }
-    
+
 }
 

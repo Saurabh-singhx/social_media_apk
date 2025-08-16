@@ -76,9 +76,12 @@ const Card = ({ post }) => {
   };
 
   useEffect(() => {
-    getComments();
-    getLikes();
-    checkLiked();
+    const fetchData = async () => {
+      await checkLiked();
+      await getComments();
+      await getLikes();
+    }
+    fetchData();
   }, []);
 
   useEffect(() => {
