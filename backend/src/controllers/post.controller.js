@@ -65,16 +65,10 @@ export const createLike = async (req, res) => {
     const { postId } = req.params;
 
     try {
-        if (!userId) {
-            return res.status(401).json({ message: "cant find the User while liking the post" });
-        }
-
+        
         if (!postId) {
-
-
             return res.status(401).json({ message: "Post id is needed" });
         }
-
 
         const checkPost = await Post.findById(postId);
 
