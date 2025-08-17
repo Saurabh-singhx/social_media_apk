@@ -57,7 +57,7 @@ export const follow = async (req, res) => {
         const newNotification = await new Notification({
             notifiyById: userId,
             notifiedToId: otherUserId,
-            text: `${folllowing.fullName} started following you`,
+            text: `${updatedUser.fullName} started following you`,
             type: "follow"
         }).save()
 

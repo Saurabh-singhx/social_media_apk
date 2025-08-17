@@ -9,15 +9,16 @@ function Notifications() {
   const isOnNotificationsPage = location.pathname === "/notifications";
   const { getNotifications, notifications, unsubscribeFromNotifications, subscribeToNotifications } = contactsStore();
   useEffect(() => {
+
+    getNotifications();
     if (isOnNotificationsPage) {
-      getNotifications();
       subscribeToNotifications();
     }
-    
     return () => {
       unsubscribeFromNotifications();
-    }
-  }, [getNotifications, isOnNotificationsPage, subscribeToNotifications, unsubscribeFromNotifications]);
+    };
+
+  }, [getNotifications, unsubscribeFromNotifications, subscribeToNotifications]);
 
 
   return (

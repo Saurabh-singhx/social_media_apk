@@ -8,15 +8,18 @@ import { HashLoader } from "react-spinners";
 import UsersList from '../components/UsersList'
 import toast from 'react-hot-toast'
 import CardSkeleton from '../skeletons/CardSkeleton'
+import { contactsStore } from '../store/contactsStore'
 
 function HomePage({ showMyPosts }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
   const { getAllPost, AllPosts, createPost, isPosting, myPosts, getMyPost, isLoadingPosts, refresh, isLoadingMyPosts } = authStore();
+  const { unsubscribeFromNotifications, subscribeToNotifications } = contactsStore();
   const [numberToSkip, setNumberToSkip] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [followUsers, setFollowUsers] = useState(false);
+
 
   useEffect(() => {
     if (!showMyPosts) {
@@ -24,7 +27,7 @@ function HomePage({ showMyPosts }) {
     } else {
       getMyPost({ numberToSkip: numberToSkip });
     }
-  }, [numberToSkip, showMyPosts,refresh])
+  }, [numberToSkip, showMyPosts, refresh])
 
 
   const handlePostSubmit = async (e) => {
@@ -39,7 +42,7 @@ function HomePage({ showMyPosts }) {
       formData.append("file", image);
     }
 
-    await createPost(formData); 
+    await createPost(formData);
 
     setContent("");
     setImage(null);

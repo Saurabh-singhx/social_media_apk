@@ -13,7 +13,7 @@ export const contactsStore = create((set, get) => ({
     isSearchingUser: false,
     notifications: [],
     isLoadingNotifications: false,
-
+    numberOfNotifications: 0,
     suggestionData: [],
 
 
@@ -21,7 +21,6 @@ export const contactsStore = create((set, get) => ({
         set({ isgettinSuggestions: true })
 
         try {
-            const { suggestionData } = get();
             const res = await axiosInstance.get("/contacts/suggestions");
 
             set({ suggestionData: res.data.suggestions });
@@ -111,6 +110,7 @@ export const contactsStore = create((set, get) => ({
         try {
             const res = await axiosInstance.get("/contacts/notifications");
             set({ notifications: res.data.notifications });
+            set({numberOfNotifications:0});
         } catch (error) {
             console.error("Error fetching notifications:", error);
             toast.error(error?.response?.data?.message || "Failed to fetch notifications");
@@ -123,7 +123,9 @@ export const contactsStore = create((set, get) => ({
         const socket = authStore.getState().socket;
         socket.off("newNotification");
         socket.on("newNotification", (newNotification) => {
-            
+            set({
+                numberOfNotifications: get().numberOfNotifications + 1,
+            });
             set({
                 notifications: [newNotification,...get().notifications],
             });

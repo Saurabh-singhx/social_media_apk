@@ -15,7 +15,7 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
   const location = useLocation();
   const isOnNotificationsPage = location.pathname === "/notifications";
   const { logout, authUser, updateProfile, isUpdatingProfile, updateProfileDetails } = authStore();
-  const { getNotifications } = contactsStore();
+  const { getNotifications, unsubscribeFromNotifications, subscribeToNotifications, numberOfNotifications } = contactsStore();
 
   const toggleDrawer = () => {
     setOpen(!open)
@@ -28,6 +28,20 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
     await logout();
     navigate("/loginSignUp");
   };
+
+
+
+  useEffect(() => {
+
+    subscribeToNotifications();
+
+    return () => {
+      unsubscribeFromNotifications();
+    }
+
+
+  }, [unsubscribeFromNotifications, subscribeToNotifications]);
+
 
   useEffect(() => {
     setEnteredBio(authUser.bio);
@@ -183,23 +197,30 @@ const Navbar = ({ showMyPosts, setShowMyPosts }) => {
           {
             !isOnNotificationsPage && (
               <button
-                onClick={() => {
-                  navigate("/notifications");
-                }}
-                className="relative">
+                onClick={() => {navigate("/notifications")}}
+                className="relative p-2 rounded-full hover:bg-gray-100 transition"
+              >
+                {/* Bell Icon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-600 hover:text-yellow-500 transition"
+                  className="h-6 w-6 text-gray-700 hover:text-yellow-500 transition"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
                   <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
                   <path d="M10 18a2 2 0 002-2H8a2 2 0 002 2z" />
                 </svg>
-                <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full animate-ping" />
+
+                {/* Notification Badge */}
+                {numberOfNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 flex items-center justify-center min-w-[18px] h-[18px]">
+                    {numberOfNotifications > 9 ? "9+" : numberOfNotifications}
+                  </span>
+                )}
               </button>
             )
           }
+
 
           <button>
             <MessagesSquare className="text-yellow-400" />
